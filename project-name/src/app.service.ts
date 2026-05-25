@@ -23,7 +23,7 @@ export class AppService {
 
     const findBook = await this.books.findOneBy({ id }); 
     if (!findBook) {
-      throw new NotFoundException(" ID não encontrado");
+      throw new NotFoundException("ID não encontrado");
     }
     return findBook;
   }
@@ -42,6 +42,11 @@ export class AppService {
      }
     return await this.books.save(book);
    
+  }
+
+  async update(id:string, newData:any){
+    await this.books.update(id, newData);
+    return this.books.findOneBy({id});
   }
   // remove livro
    async remove(id:string): Promise<void>{

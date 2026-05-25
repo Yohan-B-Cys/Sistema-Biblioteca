@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get , Param, Post, Query } from '@nestjs/common';
+import { Body, Controller, Delete, Get , Param, Post, Put, Query } from '@nestjs/common';
 import { AppService } from './app.service';
 import { CreateBookdto } from './create_book.dto';
 
@@ -32,7 +32,10 @@ export class AppController {
     return insertbook;
    }   
    
-
+   @Put (':id')
+    update(@Param('id') id:string, @Body() newData: any){
+      return this.appService.update(id , newData);
+    }
  
 
 
