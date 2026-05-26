@@ -7,22 +7,24 @@ import AddBook from './BookForm';
 
 function App() {
   
-  const [mostrarForm, setMostrarForm] = useState(false);
+  const [showForm, setShowForm] = useState(false);
   const [updater, setUpdater] = useState(0);
+  const [editBook , setEditBook] = useState (null);
 
   return (
    <div>
 
-     <button onClick={() => setMostrarForm(!mostrarForm)}>
-      {mostrarForm ? 'fechar Formulario' : '+ Adicionar Livro'} 
-    </button>
-    {mostrarForm && (
-      <AddBook onAddedBook ={() => setUpdater (updater + 1)} />
-    )}
+    
 
     <h1>Sistema Biblioteca</h1>
-    <BookTable trigger = {updater} />
+    <BookTable trigger = {updater} setEditBook={setEditBook} setShowForm = {setShowForm} />
    
+    <button onClick={() => setShowForm(!showForm)}>
+      {showForm ? 'fechar Formulario' : '+ Adicionar Livro'} 
+    </button>
+    {showForm && (
+      <AddBook editBook = {editBook} onAddedBook ={() => setUpdater (updater + 1)} />
+    )}
 
    </div>
   )
