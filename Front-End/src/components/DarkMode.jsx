@@ -1,5 +1,6 @@
 import {useState, useEffect} from 'react';
-
+import { FaRegSun } from "react-icons/fa";
+import { FaRegMoon } from "react-icons/fa6";
 function ModoEscuro () {
     const[darkTheme , setDarkTheme] = useState ( ()=>{
         return localStorage.getItem('theme') === 'dark' ;
@@ -19,9 +20,9 @@ function ModoEscuro () {
 
   return (
       
-        <div className="flex flex-col items-center justify-center p-4">
+        <div className="flex flex-col items-center justify-center p-4 cursor-pointer">
             <button onClick={() => setDarkTheme(!darkTheme)} className='p-4 rounded-full bg-destaque text-white text-4xl hover:scale-110 transition-transform shadow-lg' title='alternar tema'>
-                {darkTheme ? '☀️' : '🌙'}
+                {darkTheme ? <FaRegSun /> : <FaRegMoon/>}
             </button>
         </div>
     )

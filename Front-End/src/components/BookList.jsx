@@ -3,11 +3,16 @@ import { useNavigate} from 'react-router-dom';
 import api from "../services/api"; 
 //import global from "../styles/global" ;
 import ModoEscuro from "./DarkMode";
+import toast from "react-hot-toast";
+import { FaCopy } from "react-icons/fa";
+import CopyButton from "./CopyButton"
+import { IoLibrary } from "react-icons/io5";
+
 
 function BookTable({}){
    const[ book , setBook] = useState([]);
    const navigate = useNavigate();
-
+   const [search ,setSearch] = useState("");
 useEffect(() => {
     findBooks();
   }, []);
@@ -22,43 +27,95 @@ useEffect(() => {
   }
 
   const deleteBook = async (id) => {
-    try {
-        const confirm = window.confirm(`Tem certeza que deseja excluir o livro essa ação não pode ser desfeita?`);
 
-        if (!confirm) {
-            return;
-        }
+  toast((t) => (
+    
+    <span  className="flex flex-col gap-4 p-4 min-w-75">
+      Tem certeza que deseja excluir o livro? Essa ação não pode ser desfeita.
 
-        await api.delete(`/${id}`) ;
-        findBooks();
-    } catch (error) {
-        console.error("Erro ao deletar:", erro);
-    }
-  }
+      <div className="flex flex-row justify-start items-start gap-3">
+     
+
+      <button 
+       className=" px-5 py-2.5 rounded-lg font-medium hover:bg-gray-500/10 transition-colors"
+      onClick={() => {
+        toast.dismiss(t.id);
+      }}>
+        cancelar
+      </button>
+
+       <button
+       className="px-5 py-2.5 rounded-lg font-medium bg-destaque text-white hover:opacity-90 transition-opacity shadow-lg shadow-destaque/30"
+
+        onClick={async () => {
+          toast.dismiss(t.id); // Fecha o toast primeiro
+          try {
+            await api.delete(`/${id}`);
+            findBooks();
+            toast.success("Excluído com sucesso!");
+          } catch (error) {
+            toast.error("Falha ao deletar");
+          }
+        }} 
+      >
+        confirmar
+      </button>
+      </div>
+    </span>
+    
+  ));
+};
+
+/* const copyText = async (copiedText) => { 
+     await navigator.clipboard.writeText(copiedText)  ; 
+} */
+
+const filterBook = book.filter((livro) =>{
+  const searchText = search.toLowerCase();
+    return(
+     String(livro.id).toLowerCase().includes(searchText) ||
+      livro.titulo.toLowerCase().includes(searchText)||
+      livro.autor.toLowerCase().includes(searchText)||
+     String(livro.ano).includes(searchText)
+    );
+} );
+
 
  return (
-    // Coloquei um flex-col e items-center para centralizar o conteúdo na tela
+    
     <div className="min-h-screen bg-background text-text transition-colors duration-300 p-8 flex flex-col items-center">
       
-      {/* 1. CABEÇALHO ALINHADO: Título de um lado, Modo Escuro do outro */}
-      <div className="w-full max-w-5xl flex justify-between items-center mb-8">
-        <h1 className="text-4xl font-bold tracking-tight">📚 Sistema Biblioteca</h1>
-        <ModoEscuro />
-      </div>
+    
+     <div className="w-full flex justify-between items-center">
+    
+    <h1 className="text-4xl font-bold tracking-tight">Sistema Biblioteca</h1>
+    <ModoEscuro />
+  </div>
 
-      {/* Limitei a largura máxima para a tabela não esticar infinitamente em monitores grandes */}
+ 
+  <div className="w-full mb-8">
+    <form className="w-full" onSubmit={(e) => e.preventDefault()}>
+      <input 
+        type="text" 
+        placeholder="Pesquisar Livros..." 
+        value={search}
+        onChange={(e) => setSearch(e.target.value)}
+        className="w-full p-3 rounded-lg bg-gray-500/10 border border-gray-500/30 focus:border-destaque outline-none transition-all"
+      />
+    </form>
+  </div>
+    
       <div className="w-full max-w-5xl">
         
         {book.length === 0 ? (
           <p className="text-lg opacity-70 animate-pulse">Buscando Livros...</p>
         ) : (
           
-          /* 2. CAIXA DA TABELA: Fundo arredondado, sombra e scroll horizontal para celular */
           <div className="overflow-x-auto shadow-xl rounded-xl border border-gray-500/20 bg-gray-500/5">
             <table className="w-full text-left border-collapse">
               
               <thead>
-                {/* 3. CABEÇALHO DA TABELA: Fundo sutil e letras maiúsculas para destacar */}
+              
                 <tr className="bg-gray-500/10 border-b border-gray-500/20 text-xs uppercase tracking-wider opacity-80">
                   <th className="p-4 font-semibold">ID</th>
                   <th className="p-4 font-semibold">Título</th>
@@ -69,30 +126,47 @@ useEffect(() => {
               </thead>
 
               <tbody>
-                {book.map((livro) => (
-                  /* 4. LINHAS: Efeito Hover (passar o mouse) usando cores transparentes que funcionam no claro e no escuro! */
+                {filterBook.map((livro) => (
+                 
                   <tr key={livro.id} className="border-b border-gray-500/10 hover:bg-gray-500/10 transition-colors">
                     
-                    {/* DICA DE OURO: Cortei o ID gigante pra não quebrar sua tabela */}
+                  
                     <td className="p-4 text-sm font-mono opacity-60" title={livro.id}>
-                      {livro.id.substring(0, 8)}...
+                      <div className="flex items-center justify-between gap-3">
+                        <span>{livro.id.substring(0, 8)}...</span>
+                          <CopyButton textToCopy={livro.id} />
+                     </div>
                     </td>
                     
-                    <td className="p-4 text-sm font-medium">{livro.titulo}</td>
-                    <td className="p-4 text-sm">{livro.autor}</td>
-                    <td className="p-4 text-sm">{livro.ano}</td>
-                    
-                    {/* 5. BOTÕES: Alinhados, com cores de aviso e cantos arredondados */}
+                    <td className="p-4 text-sm font-medium">
+                      <div className="flex items-center justify-between gap-3">
+                        <span>{livro.titulo}</span>
+                          <CopyButton textToCopy={livro.titulo} />
+                     </div>
+                    </td>
+                    <td className="p-4 text-sm">
+                      <div className="flex items-center justify-between gap-3">
+                        <span>{livro.autor}</span>
+                          <CopyButton textToCopy={livro.autor} />
+                     </div>
+                    </td>
+                    <td className="p-4 text-sm">
+                      <div className="flex items-center justify-between gap-3">
+                        <span>{livro.ano}</span>
+                          <CopyButton textToCopy={livro.ano} />
+                     </div>
+                    </td>
+                  
                     <td className="p-4 text-sm flex justify-center gap-3">
                       <button 
                         onClick={() => navigate(`/books/${livro.id}/edit`)}
-                        className="bg-destaque hover:opacity-80 text-white px-4 py-2 rounded-lg font-medium transition-opacity"
+                        className="bg-destaque hover:opacity-80 text-white px-4 py-2 rounded-lg font-medium transition-opacity cursor-pointer"
                       >
                         Editar
                       </button>
                       <button 
                         onClick={() => deleteBook(livro.id)}
-                        className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg font-medium transition-colors"
+                        className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg font-medium transition-colors cursor-pointer"
                       >
                         Excluir
                       </button>
@@ -104,11 +178,11 @@ useEffect(() => {
           </div>
         )}
         
-        {/* BOTÃO PRINCIPAL: Adicionar Livro grandão e chamativo no canto inferior */}
+     
         <div className="mt-8 flex justify-end">
           <button 
             onClick={() => navigate('/books/new')}
-            className="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-xl font-bold shadow-lg transition-transform hover:scale-105"
+            className="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-xl font-bold shadow-lg transition-transform hover:scale-105 cursor-pointer"
           >
             + Adicionar Novo Livro
           </button>
