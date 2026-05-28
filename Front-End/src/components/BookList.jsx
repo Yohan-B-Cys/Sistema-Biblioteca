@@ -9,20 +9,27 @@ import CopyButton from "./CopyButton"
 import { IoLibrary } from "react-icons/io5";
 
 
-function BookTable({}){
-   const[ book , setBook] = useState([]);
+function BookTable(){
+   const[ books , setBooks] = useState([]);
+   const[search ,setSearch] = useState("");
+   const [loading, setLoading] = useState(true);
    const navigate = useNavigate();
-   const [search ,setSearch] = useState("");
+ 
 useEffect(() => {
     findBooks();
   }, []);
 
   const findBooks  = async () => {
+    setLoading(true);
+
     try{
         const result = await api.get('/');
-        setBook(result.data);
+        setBooks(result.data);
     }catch (erro){
-        console.error("Erro ao buscar livro: ",erro)
+        toast.error("Erro ao buscar livro: ")
+        console.error("Erro ao buscar livro: ");
+    }finally {
+      setLoading(false);
     }
   }
 
@@ -70,7 +77,7 @@ useEffect(() => {
      await navigator.clipboard.writeText(copiedText)  ; 
 } */
 
-const filterBook = book.filter((livro) =>{
+const filterBook = books.filter((livro) =>{
   const searchText = search.toLowerCase();
     return(
      String(livro.id).toLowerCase().includes(searchText) ||
@@ -107,9 +114,14 @@ const filterBook = book.filter((livro) =>{
     
       <div className="w-full max-w-5xl">
         
-        {book.length === 0 ? (
-          <p className="text-lg opacity-70 animate-pulse">Buscando Livros...</p>
-        ) : (
+       
+       {loading ? (
+         <p className="text-lg opacity-70 animate-pulse">Buscando Livros...</p>
+       ) : books.length === 0 ? (
+         <p className="text-lg opacity-70">Nenhum livro cadastrado.</p>
+       ) : filterBook.length === 0 ? (
+         <p className="text-lg opacity-70">Nenhum livro encontrado para essa busca.</p>
+       ) : (
           
           <div className="overflow-x-auto shadow-xl rounded-xl border border-gray-500/20 bg-gray-500/5">
             <table className="w-full text-left border-collapse">
