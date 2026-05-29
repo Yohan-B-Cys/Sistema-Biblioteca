@@ -21,7 +21,7 @@ function ModoEscuro () {
   return (
       
         <div className="flex flex-col items-center justify-center p-4 cursor-pointer">
-            <button onClick={() => setDarkTheme(!darkTheme)} className='p-4 rounded-full bg-destaque text-white text-4xl hover:scale-110 transition-transform shadow-lg' title='alternar tema'>
+            <button onClick={() => setDarkTheme(!darkTheme)} className='p-4 rounded-full bg-black text-white dark:bg-white dark:text-black text-4xl hover:scale-110 transition-transform shadow-lg' title='alternar tema'>
                 {darkTheme ? <FaRegSun /> : <FaRegMoon/>}
             </button>
         </div>

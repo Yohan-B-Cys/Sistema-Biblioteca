@@ -13,6 +13,8 @@ function BookTable(){
    const[ books , setBooks] = useState([]);
    const[search ,setSearch] = useState("");
    const [loading, setLoading] = useState(true);
+   const [currentPage, setCurrentPage] = useState(1);
+   const booksPerPage = 5 ;
    const navigate = useNavigate();
  
 useEffect(() => {
@@ -87,6 +89,12 @@ const filterBook = books.filter((livro) =>{
     );
 } );
 
+const indexOfLastBook = currentPage * booksPerPage;
+const indexOfFirstBook = indexOfLastBook - booksPerPage;
+
+const currentBooks = filterBook.slice(indexOfFirstBook,indexOfLastBook);
+const totalPages = Math.ceil(filterBook.length/booksPerPage);
+
 
  return (
     
@@ -138,7 +146,7 @@ const filterBook = books.filter((livro) =>{
               </thead>
 
               <tbody>
-                {filterBook.map((livro) => (
+                {currentBooks.map((livro) => (
                  
                   <tr key={livro.id} className="border-b border-gray-500/10 hover:bg-gray-500/10 transition-colors">
                     
@@ -172,7 +180,7 @@ const filterBook = books.filter((livro) =>{
                     <td className="p-4 text-sm flex justify-center gap-3">
                       <button 
                         onClick={() => navigate(`/books/${livro.id}/edit`)}
-                        className="bg-destaque hover:opacity-80 text-white px-4 py-2 rounded-lg font-medium transition-opacity cursor-pointer"
+                        className="bg-black hover:opacity-80 text-white dark:bg-white dark:text-black px-4 py-2 rounded-lg font-medium transition-opacity cursor-pointer"
                       >
                         Editar
                       </button>
@@ -190,6 +198,43 @@ const filterBook = books.filter((livro) =>{
           </div>
         )}
         
+        <div className="mt-6 flex items-center justify-center gap-2 flex-wrap">
+  <button
+    onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+    disabled={currentPage === 1}
+    className="px-4 py-2 rounded-lg border disabled:opacity-50 cursor-pointer"
+  >
+    Anterior
+  </button>
+
+  {Array.from({ length: totalPages }, (_, index) => {
+    const pageNumber = index + 1;
+
+    return (
+      <button
+        key={pageNumber}
+        onClick={() => setCurrentPage(pageNumber)}
+        className={`px-4 py-2 rounded-lg border ${
+          currentPage === pageNumber
+            ? "bg-destaque text-white  dark:bg-white dark:text-black cursor-pointer"
+            : "hover:bg-gray-500/10"
+        }`}
+      >
+        {pageNumber}
+      </button>
+    );
+  })}
+
+  <button
+    onClick={() =>
+      setCurrentPage((prev) => Math.min(prev + 1, totalPages))
+    }
+    disabled={currentPage === totalPages}
+    className="px-4 py-2 rounded-lg border disabled:opacity-50 cursor-pointer"
+  >
+    Próxima
+  </button>
+</div>
      
         <div className="mt-8 flex justify-end">
           <button 

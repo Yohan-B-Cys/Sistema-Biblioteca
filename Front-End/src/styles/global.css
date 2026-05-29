@@ -1,5 +1,7 @@
 @import "tailwindcss";
 
+
+@custom-variant dark (&:where(.dark, .dark *));
 /* 1. O Tailwind cria as classes (bg-background, text-text) com o valor Claro */
 @theme {
   --color-background: #ffffff;
@@ -12,5 +14,5 @@
 .dark {
   --color-background: #000000;
   --color-text: #f7fafc;
-  --color-destaque: #e9e62b;
+  --color-destaque: #ffffff;
 }
