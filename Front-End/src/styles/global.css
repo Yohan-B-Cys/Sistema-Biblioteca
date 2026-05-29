@@ -1,7 +1,7 @@
 @import "tailwindcss";
 
-
 @custom-variant dark (&:where(.dark, .dark *));
+
 /* 1. O Tailwind cria as classes (bg-background, text-text) com o valor Claro */
 @theme {
   --color-background: #ffffff;
@@ -13,6 +13,6 @@
    Quando o React botar o 'dark' no HTML, o navegador troca a cor sozinho! */
 .dark {
   --color-background: #000000;
-  --color-text: #f7fafc;
-  --color-destaque: #ffffff;
+  --color-text: #ffffff;
+  --color-destaque: #000000;
 }

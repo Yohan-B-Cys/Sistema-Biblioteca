@@ -1,5 +1,6 @@
 import { Entity,Column,PrimaryGeneratedColumn, OneToMany } from "typeorm";
 import { Logs } from "./log.entity";
+import { History } from "./history.entity";
 
 @Entity('books')
  export class Book{
@@ -17,4 +18,7 @@ import { Logs } from "./log.entity";
 
     @OneToMany(() => Logs, (log) => log.book )
     logs!: Logs [];
+
+    @OneToMany(() => History, (history)=> history.book )
+    history!: History [] ;
  }

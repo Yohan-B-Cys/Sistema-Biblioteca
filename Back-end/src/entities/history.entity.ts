@@ -1,20 +1,31 @@
-import { Entity,Column,PrimaryGeneratedColumn, ManyToOne, OneToOne, JoinColumn } from "typeorm";
+import { Entity,Column,PrimaryGeneratedColumn, ManyToOne, OneToOne, JoinColumn, CreateDateColumn } from "typeorm";
 import { Book } from "./book.entity";
 import { Collection } from "typeorm/driver/mongodb/typings.js";
 
 @Entity('history')
 export class History{
-    @PrimaryGeneratedColumn('uuid')
+    @PrimaryGeneratedColumn()
      id!: string;
 
-     @OneToOne(() => Book)
-     @JoinColumn()
-     book!:Book
+    @Column({nullable: true})
+    bookId!:string; 
+    @ManyToOne(()=>Book, (book) => book.logs , {
+     createForeignKeyConstraints: false
+    })
+    @JoinColumn({ name: 'bookId' })
+    book!: Book;
 
      @Column()
      label!:string;
 
      @Column()
-     value!:string;
+     oldValue!:string;
+
+     @Column()
+     newValue!:string;
+
+     @CreateDateColumn()
+     createdAt!:Date;
+ 
      
 }

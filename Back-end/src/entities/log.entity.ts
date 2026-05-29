@@ -1,17 +1,25 @@
-import { Entity,Column,PrimaryGeneratedColumn, ManyToOne } from "typeorm";
+import { Entity,Column,PrimaryGeneratedColumn, ManyToOne , CreateDateColumn , JoinColumn } from "typeorm";
 import { Book } from "./book.entity";
 
  @Entity ('logs')
   export class Logs {
-    @PrimaryGeneratedColumn('uuid')
+    @PrimaryGeneratedColumn()
      id!: string;
     
-    @ManyToOne(()=>Book, (book) => book.logs)
+    @Column({nullable: true})
+    bookId!:string; 
+    @ManyToOne(()=>Book, (book) => book.logs , {
+     createForeignKeyConstraints: false
+    })
+    @JoinColumn({ name: 'bookId' })
     book!: Book;
 
     @Column()
-    metod!:string;
+    method!:string;
 
     @Column()
     payload!:string;
+
+    @CreateDateColumn()
+    createdAt!:Date;
   }

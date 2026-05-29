@@ -157,7 +157,7 @@ function AddBook ({}){
             
             <button 
               type="submit"
-              className="px-5 py-2.5 rounded-lg font-medium bg-destaque text-white hover:opacity-90 transition-opacity shadow-lg shadow-destaque/30 cursor-pointer"
+              className="px-5 py-2.5 rounded-lg font-medium bg-destaque dark:bg-white dark:text-black text-white hover:opacity-90 transition-opacity shadow-lg shadow-destaque/30 cursor-pointer"
             > 
               { id ?  '  Salvar Alterações' : '  Cadastrar Livro'}
             </button>

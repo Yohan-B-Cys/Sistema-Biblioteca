@@ -7,6 +7,9 @@ import toast from "react-hot-toast";
 import { FaCopy } from "react-icons/fa";
 import CopyButton from "./CopyButton"
 import { IoLibrary } from "react-icons/io5";
+import { TbXboxX } from "react-icons/tb";
+import { TfiWrite } from "react-icons/tfi";
+import { BiBookAdd } from "react-icons/bi";
 
 
 function BookTable(){
@@ -14,7 +17,7 @@ function BookTable(){
    const[search ,setSearch] = useState("");
    const [loading, setLoading] = useState(true);
    const [currentPage, setCurrentPage] = useState(1);
-   const booksPerPage = 5 ;
+   const booksPerPage = 4 ;
    const navigate = useNavigate();
  
 useEffect(() => {
@@ -39,14 +42,14 @@ useEffect(() => {
 
   toast((t) => (
     
-    <span  className="flex flex-col gap-4 p-4 min-w-75">
+    <span  className="flex flex-col gap-4 p-4 min-w-75 text-black   dark:bg-black dark:text-white">
       Tem certeza que deseja excluir o livro? Essa ação não pode ser desfeita.
 
       <div className="flex flex-row justify-start items-start gap-3">
      
 
       <button 
-       className=" px-5 py-2.5 rounded-lg font-medium hover:bg-gray-500/10 transition-colors"
+       className=" px-5 py-2.5 rounded-lg font-medium  hover:bg-gray-500/10 transition-colors"
       onClick={() => {
         toast.dismiss(t.id);
       }}>
@@ -104,7 +107,17 @@ const totalPages = Math.ceil(filterBook.length/booksPerPage);
      <div className="w-full flex justify-between items-center">
     
     <h1 className="text-4xl font-bold tracking-tight">Sistema Biblioteca</h1>
-    <ModoEscuro />
+  
+
+      <div className="mt-4 flex justify-end">
+          <button 
+            onClick={() => navigate('/books/new')}
+            className="bg-green-600  hover:bg-green-700 text-white px-6 py-3 rounded-xl font-bold shadow-lg transition-transform hover:scale-105 cursor-pointer"
+          >
+           {/*  <BiBookAdd /> */} Adicionar Novo Livro
+          </button>
+        </div>
+        <ModoEscuro />
   </div>
 
  
@@ -180,15 +193,15 @@ const totalPages = Math.ceil(filterBook.length/booksPerPage);
                     <td className="p-4 text-sm flex justify-center gap-3">
                       <button 
                         onClick={() => navigate(`/books/${livro.id}/edit`)}
-                        className="bg-black hover:opacity-80 text-white dark:bg-white dark:text-black px-4 py-2 rounded-lg font-medium transition-opacity cursor-pointer"
+                        className="bg-black hover:opacity-80 text-white dark:bg-white dark:text-black px-3 py-2 rounded-full font-medium transition-opacity cursor-pointer  title='editar livro'"
                       >
-                        Editar
+                      <TfiWrite />  {/* editar */} 
                       </button>
                       <button 
                         onClick={() => deleteBook(livro.id)}
-                        className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg font-medium transition-colors cursor-pointer"
+                        className="bg-red-500 hover:bg-red-600 text-white px-2 py-2 p-2 rounded-full font-medium transition-colors cursor-pointer"
                       >
-                        Excluir
+                       <TbXboxX  size={20}/> {/* excluiur */}
                       </button>
                     </td>
                   </tr>
@@ -236,14 +249,7 @@ const totalPages = Math.ceil(filterBook.length/booksPerPage);
   </button>
 </div>
      
-        <div className="mt-8 flex justify-end">
-          <button 
-            onClick={() => navigate('/books/new')}
-            className="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-xl font-bold shadow-lg transition-transform hover:scale-105 cursor-pointer"
-          >
-            + Adicionar Novo Livro
-          </button>
-        </div>
+      
 
       </div>
     </div>
