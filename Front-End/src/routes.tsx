@@ -12,6 +12,7 @@ function MainRoutes (){
             <Route path = "/books" element= { <BookTable /> }></Route>
             <Route path = "/books/new" element= { <AddBook/> }></Route>
             <Route path = "/books/:id/edit" element = { <AddBook/>} ></Route>
+            {/* <Route path="/history/:id"></Route> */}
         </Routes>
         </div>
     )

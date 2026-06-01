@@ -3,7 +3,7 @@
 @custom-variant dark (&:where(.dark, .dark *));
 
 @theme {
-  --color-background: #caddfc;
+  --color-background: #dcfaf7;
   --color-text: #1a202c;
   --color-destaque: #000000; /* Preto no tema claro */
 }
