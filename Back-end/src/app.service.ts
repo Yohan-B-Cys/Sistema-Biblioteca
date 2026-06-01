@@ -5,6 +5,7 @@ import { Logs } from './entities/log.entity';
 import { History } from './entities/history.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, DataSource } from 'typeorm';
+import { promises } from 'dns';
 
 @Injectable()
 export class AppService {
@@ -46,8 +47,6 @@ export class AppService {
 
     const findBook = await this.books.findOneBy({ id });
     return this.dataSource.transaction( async (manager) => {
-    
-    const findBook = await this.books.findOneBy({ id });
 
     if (!findBook) {
       throw new NotFoundException('ID não encontrado');
@@ -66,6 +65,24 @@ export class AppService {
     return findBook;
     })
   }
+
+ // Substitua o método findHistory antigo por este aqui:
+
+async findHistory(bookId: string): Promise<History[]> {
+  // 1. Busca TODOS os históricos que pertencem ao ID desse livro
+  const historyRecords = await this.historyRepository.find({
+    where: { bookId: bookId },
+    order: { createdAt: 'DESC' }, // Bônus: traz as alterações mais novas primeiro!
+  });
+
+  // 2. Se não tiver nada, avisa o front-end
+  if (!historyRecords || historyRecords.length === 0) {
+    throw new NotFoundException('Nenhum histórico encontrado para este livro');
+  }
+
+  // Retorna o array limpíssimo (sem criar logs de GET para não entupir seu banco!)
+  return historyRecords;
+}
 
   async create(createBookDto: CreateBookdto): Promise<Book> {
     return this.dataSource.transaction(async (manager) => {

@@ -9,7 +9,7 @@ export class History{
 
     @Column({nullable: true})
     bookId!:string; 
-    @ManyToOne(()=>Book, (book) => book.logs , {
+    @ManyToOne(()=>Book, (book) => book.history , {
      createForeignKeyConstraints: false
     })
     @JoinColumn({ name: 'bookId' })
