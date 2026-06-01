@@ -27,6 +27,11 @@ function BookTable() {
   const [books, setBooks] = useState([]);
   const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [deletingId, setDeletingId] = useState(null);
+  const [confirmingId, setConfirmingId] = useState(null);
+
+
 
   // Paginação
   const [currentPage, setCurrentPage] = useState(1);
@@ -67,6 +72,11 @@ function BookTable() {
   };
 
   const handleDeleteBook = (id) => {
+
+    if (confirmingId === id) return;
+
+    setConfirmingId(id);
+
     toast(
       (t) => (
         <div className="flex flex-col gap-4">
@@ -86,9 +96,14 @@ function BookTable() {
 
             <button
               onClick={async () => {
+                // ✅ evita clique duplo
+                if (deletingId === id) return;
+
                 toast.dismiss(t.id);
 
                 try {
+                  setDeletingId(id); // ✅ marca como "deletando"
+
                   await api.delete(`/${id}`);
                   await fetchBooks();
 
@@ -100,6 +115,8 @@ function BookTable() {
                   toast.error("Falha ao deletar livro.", {
                     className: TOAST_CLASS,
                   });
+                } finally {
+                  setDeletingId(null); // ✅ libera novamente
                 }
               }}
               className="bg-red-600 hover:bg-red-700 text-white font-semibold px-4 py-1.5 rounded-md transition-colors cursor-pointer shadow-lg"
@@ -271,10 +288,16 @@ function BookTable() {
 
             <button
               onClick={() => handleDeleteBook(livro.id)}
-              className="p-2 text-red-500 hover:bg-red-500/10 rounded-md cursor-pointer transition-colors"
+              disabled={deletingId === livro.id}
+              className={`
+    p-2 text-red-500 rounded-md transition-colors
+    ${deletingId === livro.id
+                  ? "opacity-50 cursor-not-allowed"
+                  : "hover:bg-red-500/10"}
+  `}
               title="Excluir"
             >
-              <TbXboxX size={20} />
+              {deletingId === livro.id ? "..." : <TbXboxX size={20} />}
             </button>
           </div>
         </td>
@@ -389,11 +412,10 @@ function BookTable() {
               <button
                 key={pageNumber}
                 onClick={() => setCurrentPage(pageNumber)}
-                className={`w-10 h-10 rounded-md border border-text flex items-center justify-center cursor-pointer transition-colors ${
-                  currentPage === pageNumber
+                className={`w-10 h-10 rounded-md border border-text flex items-center justify-center cursor-pointer transition-colors ${currentPage === pageNumber
                     ? "bg-text text-background"
                     : "text-text hover:bg-black/10 dark:hover:bg-white/10"
-                }`}
+                  }`}
               >
                 {pageNumber}
               </button>

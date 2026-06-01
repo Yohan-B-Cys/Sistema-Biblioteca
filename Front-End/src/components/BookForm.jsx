@@ -13,6 +13,7 @@ function AddBook() {
   const [autor, setAutor] = useState("");
   const [ano, setAno] = useState("");
   const [loading, setLoading] = useState(false);
+  const [saving, setSaving] = useState(false);
 
   useEffect(() => {
     if (!id) return;
@@ -68,6 +69,8 @@ function AddBook() {
       ano: anoNumerico,
     };
 
+    setSaving(true);
+
     try {
       if (id) {
         await api.put(`/${id}`, bookData);
@@ -81,6 +84,8 @@ function AddBook() {
     } catch (error) {
       console.error(error);
       toast.error("Erro ao salvar livro");
+    } finally {
+      setSaving(false);
     }
   };
 
@@ -187,6 +192,7 @@ function AddBook() {
             </button>
 
             <button
+              disabled={saving}
               type="submit"
               className="px-4 py-2 text-sm rounded-md font-semibold
                 bg-green-600 hover:bg-green-700
