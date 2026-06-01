@@ -27,7 +27,6 @@ function BookTable() {
   const [books, setBooks] = useState([]);
   const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(true);
-  const [saving, setSaving] = useState(false);
   const [deletingId, setDeletingId] = useState(null);
   const [confirmingId, setConfirmingId] = useState(null);
 
@@ -88,7 +87,12 @@ function BookTable() {
 
           <div className="flex justify-end gap-3">
             <button
-              onClick={() => toast.dismiss(t.id)}
+              onClick={() => {
+                setConfirmingId(null);
+                toast.dismiss(t.id)
+              }
+                }
+              
               className="px-3 py-1.5 text-text opacity-70 hover:opacity-100 transition-opacity cursor-pointer"
             >
               Cancelar
@@ -117,6 +121,7 @@ function BookTable() {
                   });
                 } finally {
                   setDeletingId(null); // ✅ libera novamente
+                  setConfirmingId(null);
                 }
               }}
               className="bg-red-600 hover:bg-red-700 text-white font-semibold px-4 py-1.5 rounded-md transition-colors cursor-pointer shadow-lg"
