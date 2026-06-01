@@ -10,6 +10,8 @@ import { IoLibrary } from "react-icons/io5";
 import { TbXboxX } from "react-icons/tb";
 import { TfiWrite } from "react-icons/tfi";
 import { BiBookAdd } from "react-icons/bi";
+import { FaClock } from "react-icons/fa";
+import { CiClock2 } from "react-icons/ci";
 
 
 function BookTable(){
@@ -17,7 +19,7 @@ function BookTable(){
    const[search ,setSearch] = useState("");
    const [loading, setLoading] = useState(true);
    const [currentPage, setCurrentPage] = useState(1);
-   const booksPerPage = 4 ;
+   const booksPerPage = 2 ;
    const navigate = useNavigate();
  
 useEffect(() => {
@@ -38,44 +40,51 @@ useEffect(() => {
     }
   }
 
-  const deleteBook = async (id) => {
-
-  toast((t) => (
-    
-    <span  className="flex flex-col gap-4 p-4 min-w-75 text-black   dark:bg-black dark:text-white">
-      Tem certeza que deseja excluir o livro? Essa ação não pode ser desfeita.
-
-      <div className="flex flex-row justify-start items-start gap-3">
-     
-
-      <button 
-       className=" px-5 py-2.5 rounded-lg font-medium  hover:bg-gray-500/10 transition-colors"
-      onClick={() => {
-        toast.dismiss(t.id);
-      }}>
-        cancelar
-      </button>
-
-       <button
-       className="px-5 py-2.5 rounded-lg font-medium bg-destaque text-white hover:opacity-90 transition-opacity shadow-lg shadow-destaque/30"
-
-        onClick={async () => {
-          toast.dismiss(t.id); // Fecha o toast primeiro
-          try {
-            await api.delete(`/${id}`);
-            findBooks();
-            toast.success("Excluído com sucesso!");
-          } catch (error) {
-            toast.error("Falha ao deletar");
-          }
-        }} 
-      >
-        confirmar
-      </button>
+const deleteBook = async (id) => {
+  toast(
+    (t) => (
+      <div className="flex flex-col gap-4">
+        <p className="text-text">
+          Tem certeza que deseja excluir o livro?<br />
+          Essa ação não pode ser desfeita.
+        </p>
+        <div className="flex justify-end gap-3">
+          <button
+            onClick={() => toast.dismiss(t.id)}
+            className="text-text opacity-70 hover:opacity-100 transition-opacity cursor-pointer px-3 py-1.5"
+          >
+            cancelar
+          </button>
+          
+          <button
+            onClick={async () => {
+              toast.dismiss(t.id); // Fecha o toast primeiro
+              try {
+                // A SUA LÓGICA ORIGINAL AQUI: batendo direto na raiz com o ID
+                await api.delete(`/${id}`);
+                
+                findBooks();
+                toast.success("Excluído com sucesso!", {
+                  className: '!bg-background !text-text border border-gray-200 dark:border-gray-700'
+                });
+              } catch (error) {
+                toast.error("Falha ao deletar", {
+                  className: '!bg-background !text-text border border-gray-200 dark:border-gray-700'
+                });
+              }
+            }}
+            className="bg-red-600 hover:bg-red-700 text-white font-semibold px-4 py-1.5 rounded-md transition-colors cursor-pointer shadow-lg"
+          >
+            confirmar
+          </button>
+        </div>
       </div>
-    </span>
-    
-  ));
+    ),
+    {
+      className: '!bg-background !text-text border border-gray-200 dark:border-gray-700',
+      duration: Infinity, 
+    }
+  );
 };
 
 /* const copyText = async (copiedText) => { 
@@ -99,163 +108,135 @@ const currentBooks = filterBook.slice(indexOfFirstBook,indexOfLastBook);
 const totalPages = Math.ceil(filterBook.length/booksPerPage);
 
 
- return (
+return (
+  <div className="min-h-screen bg-background text-text p-8 flex flex-col items-center">
     
-    <div className="min-h-screen bg-background text-text transition-colors duration-300 p-8 flex flex-col items-center">
-      
-    
-     <div className="w-full flex justify-between items-center">
-    
-    <h1 className="text-4xl font-bold tracking-tight">Sistema Biblioteca</h1>
-  
-
-      <div className="mt-4 flex justify-end">
-          <button 
-            onClick={() => navigate('/books/new')}
-            className="bg-green-600  hover:bg-green-700 text-white px-6 py-3 rounded-xl font-bold shadow-lg transition-transform hover:scale-105 cursor-pointer"
-          >
-           {/*  <BiBookAdd /> */} Adicionar Novo Livro
-          </button>
-        </div>
+    {/* 1. CABEÇALHO (Dark Mode isolado à esquerda, Título centralizado) */}
+    <div className="w-full max-w-5xl flex justify-center items-center relative mb-8">
+      <div className="absolute right-0">
         <ModoEscuro />
-  </div>
-
- 
-  <div className="w-full mb-8">
-    <form className="w-full" onSubmit={(e) => e.preventDefault()}>
-      <input 
-        type="text" 
-        placeholder="Pesquisar Livros..." 
-        value={search}
-        onChange={(e) => setSearch(e.target.value)}
-        className="w-full p-3 rounded-lg bg-gray-500/10 border border-gray-500/30 focus:border-destaque outline-none transition-all"
-      />
-    </form>
-  </div>
-    
-      <div className="w-full max-w-5xl">
-        
-       
-       {loading ? (
-         <p className="text-lg opacity-70 animate-pulse">Buscando Livros...</p>
-       ) : books.length === 0 ? (
-         <p className="text-lg opacity-70">Nenhum livro cadastrado.</p>
-       ) : filterBook.length === 0 ? (
-         <p className="text-lg opacity-70">Nenhum livro encontrado para essa busca.</p>
-       ) : (
-          
-          <div className="overflow-x-auto shadow-xl rounded-xl border border-gray-500/20 bg-gray-500/5">
-            <table className="w-full text-left border-collapse">
-              
-              <thead>
-              
-                <tr className="bg-gray-500/10 border-b border-gray-500/20 text-xs uppercase tracking-wider opacity-80">
-                  <th className="p-4 font-semibold">ID</th>
-                  <th className="p-4 font-semibold">Título</th>
-                  <th className="p-4 font-semibold">Autor</th>
-                  <th className="p-4 font-semibold">Ano</th>
-                  <th className="p-4 font-semibold text-center">Ações</th>
-                </tr>
-              </thead>
-
-              <tbody>
-                {currentBooks.map((livro) => (
-                 
-                  <tr key={livro.id} className="border-b border-gray-500/10 hover:bg-gray-500/10 transition-colors">
-                    
-                  
-                    <td className="p-4 text-sm font-mono opacity-60" title={livro.id}>
-                      <div className="flex items-center justify-between gap-3">
-                        <span>{livro.id.substring(0, 8)}...</span>
-                          <CopyButton textToCopy={livro.id} />
-                     </div>
-                    </td>
-                    
-                    <td className="p-4 text-sm font-medium">
-                      <div className="flex items-center justify-between gap-3">
-                        <span>{livro.titulo}</span>
-                          <CopyButton textToCopy={livro.titulo} />
-                     </div>
-                    </td>
-                    <td className="p-4 text-sm">
-                      <div className="flex items-center justify-between gap-3">
-                        <span>{livro.autor}</span>
-                          <CopyButton textToCopy={livro.autor} />
-                     </div>
-                    </td>
-                    <td className="p-4 text-sm">
-                      <div className="flex items-center justify-between gap-3">
-                        <span>{livro.ano}</span>
-                          <CopyButton textToCopy={livro.ano} />
-                     </div>
-                    </td>
-                  
-                    <td className="p-4 text-sm flex justify-center gap-3">
-                      <button 
-                        onClick={() => navigate(`/books/${livro.id}/edit`)}
-                        className="bg-black hover:opacity-80 text-white dark:bg-white dark:text-black px-3 py-2 rounded-full font-medium transition-opacity cursor-pointer  title='editar livro'"
-                      >
-                      <TfiWrite />  {/* editar */} 
-                      </button>
-                      <button 
-                        onClick={() => deleteBook(livro.id)}
-                        className="bg-red-500 hover:bg-red-600 text-white px-2 py-2 p-2 rounded-full font-medium transition-colors cursor-pointer"
-                      >
-                       <TbXboxX  size={20}/> {/* excluiur */}
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
-        
-        <div className="mt-6 flex items-center justify-center gap-2 flex-wrap">
-  <button
-    onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
-    disabled={currentPage === 1}
-    className="px-4 py-2 rounded-lg border disabled:opacity-50 cursor-pointer"
-  >
-    Anterior
-  </button>
-
-  {Array.from({ length: totalPages }, (_, index) => {
-    const pageNumber = index + 1;
-
-    return (
-      <button
-        key={pageNumber}
-        onClick={() => setCurrentPage(pageNumber)}
-        className={`px-4 py-2 rounded-lg border ${
-          currentPage === pageNumber
-            ? "bg-destaque text-white  dark:bg-white dark:text-black cursor-pointer"
-            : "hover:bg-gray-500/10"
-        }`}
-      >
-        {pageNumber}
-      </button>
-    );
-  })}
-
-  <button
-    onClick={() =>
-      setCurrentPage((prev) => Math.min(prev + 1, totalPages))
-    }
-    disabled={currentPage === totalPages}
-    className="px-4 py-2 rounded-lg border disabled:opacity-50 cursor-pointer"
-  >
-    Próxima
-  </button>
-</div>
-     
-      
-
       </div>
+      
+      <h1 className="text-3xl font-bold flex items-center gap-3">
+        <IoLibrary size={32} />
+        Sistema Biblioteca
+      </h1>
     </div>
-  );
-  
-}
+
+    {/* 2. BARRA DE PESQUISA E BOTÃO ADICIONAR MENOR */}
+    <div className="w-full max-w-5xl flex gap-3 mb-6">
+      <input
+  type="text"
+  placeholder="Pesquisar Livros..."
+  value={search}
+  onChange={(e) => setSearch(e.target.value)}
+  className="flex-1 p-3 rounded-lg border-2 border-gray-400 dark:border-gray-500 dark:bg-white/5 text-text focus:outline-none focus:border-green-500 focus:ring-1 focus:ring-green-500 transition-all"
+/>
+      <button
+        onClick={() => navigate('/books/new')}
+        // Botão menor: py-2 px-3, texto menor (text-sm) e whitespace-nowrap para não quebrar a linha
+        className="flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white py-2 px-3 rounded-md transition-colors cursor-pointer font-medium text-sm whitespace-nowrap shadow-sm"
+      >
+        <BiBookAdd size={18} />
+        Adicionar Livro
+      </button>
+    </div>
+
+    {/* 3. TABELA COM LARGURA FIXA */}
+    <div className="w-full max-w-5xl bg-surface border border-borda rounded-lg shadow-md overflow-hidden mb-6">
+      {/* A classe 'table-fixed' é a mágica que trava as colunas */}
+      <table className="w-full table-fixed text-left">
+        <thead className="bg-black/5 dark:bg-white/5 border-b border-borda">
+          <tr>
+            {/* Definimos larguras percentuais para cada coluna para travar o tamanho */}
+            <th className="p-4 w-1/4 font-semibold">ID</th>
+            <th className="p-4 w-1/3 font-semibold">TÍTULO</th>
+            <th className="p-4 w-1/4 font-semibold">AUTOR</th>
+            <th className="p-4 w-24 text-center font-semibold">ANO</th>
+            <th className="p-4 w-32 text-center font-semibold">AÇÕES</th>
+          </tr>
+        </thead>
+        <tbody>
+          {currentBooks.map((livro) => (
+            <tr key={livro.id} className="border-b border-borda last:border-0 hover:bg-black/5 dark:hover:bg-white/5 transition-colors">
+              
+              {/* O truncate corta textos gigantes com "..." para não estourar a coluna */}
+              <td className="p-4 flex items-center gap-2">
+                <span className="truncate">{livro.id}</span>
+                <CopyButton textToCopy={livro.id} />
+              </td>
+              
+              <td className="p-4 truncate" title={livro.titulo}>{livro.titulo}</td>
+              <td className="p-4 truncate" title={livro.autor}>{livro.autor}</td>
+              <td className="p-4 text-center">{livro.ano}</td>
+              
+              <td className="p-4 text-center flex justify-center gap-2">
+                {/* Botões de Ação */}
+                <button 
+                onClick={() => navigate(`/books/${livro.id}/edit`)}
+                  className="p-2 text-text hover:bg-black/10 dark:hover:bg-white/10 rounded-md cursor-pointer transition-colors"
+                  title="Editar"
+                >
+                  <TfiWrite size={18} />
+                </button>
+                <button 
+                onClick={() => navigate(`/books/${livro.id}/edit`)}
+                  className="p-2 text-text hover:bg-black/10 dark:hover:bg-white/10 rounded-md cursor-pointer transition-colors"
+                  title=" Ultimas alterações"
+                >
+                 <CiClock2 size={18} />
+                </button>
+                <button 
+                  onClick={() => deleteBook(livro.id)}
+                  className="p-2 text-red-500 hover:bg-red-500/10 rounded-md cursor-pointer transition-colors"
+                  title="Excluir"
+                >
+                  <TbXboxX size={20} />
+                </button>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+
+    {/* 4. PAGINAÇÃO */}
+    <div className="flex gap-2 justify-center items-center">
+      <button 
+        onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))} 
+        disabled={currentPage === 1}
+        className="px-4 py-2 rounded-md border border-text text-text disabled:opacity-50 cursor-pointer hover:bg-black/10 dark:hover:bg-white/10 transition-colors"
+      >
+        Anterior
+      </button>
+      
+      {Array.from({ length: totalPages }, (_, index) => {
+        const pageNumber = index + 1;
+        return (
+          <button
+            key={pageNumber}
+            onClick={() => setCurrentPage(pageNumber)}
+            className={`w-10 h-10 rounded-md border border-text flex items-center justify-center cursor-pointer transition-colors ${
+              currentPage === pageNumber 
+                ? 'bg-text text-background' // Página atual inverte as cores
+                : 'text-text hover:bg-black/10 dark:hover:bg-white/10'
+            }`}
+          >
+            {pageNumber}
+          </button>
+        );
+      })}
+
+      <button 
+        onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))} 
+        disabled={currentPage === totalPages}
+        className="px-4 py-2 rounded-md border border-text text-text disabled:opacity-50 cursor-pointer hover:bg-black/10 dark:hover:bg-white/10 transition-colors"
+      >
+        Próxima
+      </button>
+    </div>
+  </div>
+); }
 
 export default BookTable;
 

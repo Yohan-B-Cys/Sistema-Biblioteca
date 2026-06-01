@@ -2,17 +2,14 @@
 
 @custom-variant dark (&:where(.dark, .dark *));
 
-/* 1. O Tailwind cria as classes (bg-background, text-text) com o valor Claro */
 @theme {
-  --color-background: #ffffff;
+  --color-background: #caddfc;
   --color-text: #1a202c;
-  --color-destaque: #000000;
+  --color-destaque: #000000; /* Preto no tema claro */
 }
 
-/* 2. O CSS NATIVO do navegador assume o controle aqui. 
-   Quando o React botar o 'dark' no HTML, o navegador troca a cor sozinho! */
 .dark {
-  --color-background: #000000;
+  --color-background: #0a1124;
   --color-text: #ffffff;
-  --color-destaque: #000000;
+  --color-destaque: #ffffff; /* Branco no tema escuro para dar contraste */
 }
