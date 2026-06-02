@@ -4,7 +4,7 @@ import { Book } from "./book.entity";
  @Entity ('logs')
   export class Logs {
     @PrimaryGeneratedColumn()
-     id!: string;
+     id!: number;
     
     @Column({nullable: true})
     bookId!:string; 

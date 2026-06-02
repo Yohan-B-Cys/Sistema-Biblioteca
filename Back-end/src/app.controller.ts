@@ -21,6 +21,11 @@ export class AppController {
   return await this.appService.findOne(id);
  }
 
+ @Get('history/:id')
+ async findHistory(@Param('id') id: string) {
+   return await this.appService.findHistory(id);
+ }
+
  @Delete(':id')
   async remove(@Param('id') id:string ){
   return await this.appService.remove(id);

@@ -127,8 +127,9 @@ async findHistory(bookId: string): Promise<History[]> {
     });
   }
 
- async update(id: string, newData: Partial<Book>): Promise<Book> {
+async update(id: string, newData: Partial<Book>): Promise<Book> {
   return this.dataSource.transaction(async (manager) => {
+    // 1. Busca o livro original no banco
     const book = await manager.findOne(Book, { where: { id } });
 
     if (!book) {
@@ -137,6 +138,7 @@ async findHistory(bookId: string): Promise<History[]> {
 
     const fieldsToTrack: (keyof Book)[] = ['titulo', 'autor', 'ano'];
 
+    // 2. Mapeia as alterações para o histórico antes de modificar o objeto
     const changes = fieldsToTrack
       .filter((field) => newData[field] !== undefined && newData[field] !== book[field])
       .map((field) => ({
@@ -149,17 +151,11 @@ async findHistory(bookId: string): Promise<History[]> {
       return book;
     }
 
-    await manager.update(Book, { id }, newData);
+    // 3. OTIMIZAÇÃO: Mescla os dados novos no objeto existente e salva de uma vez só
+    Object.assign(book, newData);
+    const updatedBook = await manager.save(Book, book); // Faz o UPDATE e retorna o livro atualizado
 
-    const updatedBook = await manager.findOne(Book, { where: { id } });
-
-    console.log('ID Recebido:', id);
-  console.log('Dados para atualizar:', newData)
-
-    if (!updatedBook) {
-      throw new NotFoundException('Livro não encontrado após update');
-    }
-
+    // 4. Cria os registros de histórico com a instância atualizada
     const historyEntries = changes.map((change) =>
       manager.create(History, {
         label: change.label,
@@ -180,6 +176,7 @@ async findHistory(bookId: string): Promise<History[]> {
       book: updatedBook,
     });
 
+    // 5. Salva o histórico e os logs
     await manager.save(History, historyEntries);
     await manager.save(Logs, log);
 

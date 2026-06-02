@@ -1,11 +1,10 @@
 import { Entity,Column,PrimaryGeneratedColumn, ManyToOne, OneToOne, JoinColumn, CreateDateColumn } from "typeorm";
 import { Book } from "./book.entity";
-import { Collection } from "typeorm/driver/mongodb/typings.js";
 
 @Entity('history')
 export class History{
     @PrimaryGeneratedColumn()
-     id!: string;
+     id!: number;
 
     @Column({nullable: true})
     bookId!:string; 
