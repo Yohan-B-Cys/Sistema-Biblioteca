@@ -1,4 +1,9 @@
 # 📚 Sistema Biblioteca
+![NestJS](https://img.shields.io/badge/nestjs-%23E0234E.svg?style=for-the-badge&logo=nestjs&logoColor=white)
+![React](https://img.shields.io/badge/react-%2320232a.svg?style=for-the-badge&logo=react&logoColor=%2361DAFB)
+![TypeORM](https://img.shields.io/badge/typeorm-%23FE0803.svg?style=for-the-badge&logo=typeorm&logoColor=white)
+![SQLite](https://img.shields.io/badge/sqlite-%2307405e.svg?style=for-the-badge&logo=sqlite&logoColor=white)
+![TailwindCSS](https://img.shields.io/badge/tailwindcss-%2338B2AC.svg?style=for-the-badge&logo=tailwind-css&logoColor=white)
 
 Sistema de gerenciamento de uma biblioteca completo que permite cadastrar, editar, excluir, listar e visualizar histórico de alterações dos livros. Construído com **React.js** no Front-end e **NestJS** no Back-end, utilizando **TypeORM** para persistência de dados em **SQLite3**.
 
