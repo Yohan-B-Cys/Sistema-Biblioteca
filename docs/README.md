@@ -129,14 +129,21 @@ npm run dev
 
 ## 👨‍💻 Autor
 
-**Yohan Brancalhão Cys** *Estudante de Análise e Desenvolvimento de Sistemas - UFPR* [![LinkedIn](https://img.shields.io/badge/LinkedIn-0077B5?style=for-the-badge&logo=linkedin&logoColor=white)](https://www.linkedin.com/in/SEU-LINKEDIN-AQUI)
-[![GitHub](https://img.shields.io/badge/GitHub-100000?style=for-the-badge&logo=github&logoColor=white)](https://github.com/Yohan-B-Cys)
+**Yohan Brancalhão Cys** *Estudante de Análise e Desenvolvimento de Sistemas - UFPR* 
 
 ---
+## 🚀 Melhorias Futuras (To-Do)
+
+Este projeto está em evolução contínua. Abaixo estão possíveis melhorias para o projeto:
+
+- **Containerização:** Criar um `Dockerfile` e um `docker-compose.yml` para padronizar o ambiente de execução do banco e da aplicação.
+- **Implementação de Paginação no Backend:** Adicionar suporte a parâmetros de paginação (take e skip no TypeORM) nas rotas de listagem e histórico, reduzindo o payload de rede e evitando sobrecarga de memória em alto volume de dados.
+- **Implementação de Banco de Dados mais robusto:** Substituir o SQLite por um SGBD de produção (como PostgreSQL ou SQLServer), garantindo melhor controle de concorrência transacional e preparando a API para um deploy escalável em nuvem.
+- **Permitir Livros Antes de Cristo:** Implementação de uma checkbox no formulário do livro para adicionar uma tag B.C (Before Christ) para livros com data correspondente, ex: A República de Platão.
 
 ## 📚 Referências e Créditos
 
-Este projeto foi a minha primeira experiencia com desenvolvimento em React,Nest e muitas outras tecnologias como parte de um processo de adptação a stack de desenvolvimento da equipe de T.i da Britania. Os requisitos evoluíram de uma arquitetura simples em memória para uma API robusta com persistência de dados em banco relacional Sqlite3, tabelas de log e historico das transações e um front-end em react-vite e tailwind css .
+Este projeto foi a minha primeira experiência com desenvolvimento em React, Nest e muitas outras tecnologias como parte de um processo de adaptação à stack de desenvolvimento da equipe de T.I. da Britânia. Os requisitos evoluíram de uma arquitetura simples em memória para uma API robusta com persistência de dados em banco relacional SQLite3, tabelas de log e histórico das transações, e um front-end em React-Vite e Tailwind CSS.
 
 Materiais e documentações utilizadas como base para a construção do sistema:
 
@@ -145,15 +152,15 @@ Materiais e documentações utilizadas como base para a construção do sistema:
 * **React & Vite:** [React.dev](https://react.dev/) e [Vite Docs](https://vitejs.dev/) para a construção da interface reativa.
 * **Tailwind CSS:** [Documentação](https://tailwindcss.com/) para estilização e construção do Dark Mode.
 
-Artigos e videos que me ajudaram :
-* **Artigo do** [Medium](https://medium.com/@enockomondi305/getting-started-with-nestjs-your-first-rest-api-477e25b115cc) foi uma primeria inspiração no meu sistema por ser similar em proposta.
-* **Video do canal:** [Michael Guay](https://youtu.be/9MGKKJTwicM?si=TAKW12x9THpL_9LC) utilizei junto a documentalção do typeorm para criação, relacionamento e transação entre entidades
-* **Video do canal:** [Desenvolvimento do basico](https://youtu.be/2z9iYfiujWw?si=I2bK-EH2a9NsXlRg) foi uma inspiração para a ordenação do e busca na tabela.
-* **Video do canal:** [Dev Odair Michael](https://youtu.be/aIuZ2rxs2vw?si=JdJRl008Rj9LEkQT) me guiou para a implementalçao do react icons no front-end.
-* **Video do canal:** [Tutorend](https://youtu.be/PCC2mESZMmQ?si=gJfNLAxKRSiskKiY) me guiou para a implementalçao do react Hot Toast no front-end.
-* **Video do canal:** [Tenacity](https://youtu.be/NGwipjJimjk?si=D5keo0VbXqHePu1F) me guiou para a implementalçao da funcionalidade de dark mode no front-end.
+Artigos e vídeos que me ajudaram:
 
-* **Video do canal:** [Cubos Academy](https://youtu.be/KDlqPNmrUfE?si=-j36-LhEsqmqvFi3) me guiou para a implementação do react Router Dom no front-end.
-
-* **Video do canal:** [LearnWebCode](https://www.youtube.com/watch?v=OA5JAmTcTz4&t=1070s) me ajudou a me introduzir ao React.
+* **Artigo do** [Medium](https://medium.com/@enockomondi305/getting-started-with-nestjs-your-first-rest-api-477e25b115cc) foi uma primeira inspiração no meu sistema por ser similar em proposta.
+* **Repositório de** [Bane Sullivan](https://github.com/banesullivan/README) foi uma inspiração para este README.
+* **Vídeo do canal:** [Michael Guay](https://youtu.be/9MGKKJTwicM?si=TAKW12x9THpL_9LC) utilizei junto à documentação do TypeORM para criação, relacionamento e transação entre entidades.
+* **Vídeo do canal:** [Desenvolvimento do Básico](https://youtu.be/2z9iYfiujWw?si=I2bK-EH2a9NsXlRg) foi uma inspiração para a ordenação e busca na tabela.
+* **Vídeo do canal:** [Dev Odair Michael](https://youtu.be/aIuZ2rxs2vw?si=JdJRl008Rj9LEkQT) me guiou para a implementação do React Icons no front-end.
+* **Vídeo do canal:** [Tutorend](https://youtu.be/PCC2mESZMmQ?si=gJfNLAxKRSiskKiY) me guiou para a implementação do React Hot Toast no front-end.
+* **Vídeo do canal:** [Tenacity](https://youtu.be/NGwipjJimjk?si=D5keo0VbXqHePu1F) me guiou para a implementação da funcionalidade de Dark Mode no front-end.
+* **Vídeo do canal:** [Cubos Academy](https://youtu.be/KDlqPNmrUfE?si=-j36-LhEsqmqvFi3) me guiou para a implementação do React Router DOM no front-end.
+* **Vídeo do canal:** [LearnWebCode](https://www.youtube.com/watch?v=OA5JAmTcTz4&t=1070s) me ajudou a introduzir aos conceitos do React.
 
