@@ -8,7 +8,7 @@ import { Repository, DataSource } from 'typeorm';
 import { promises } from 'dns';
 
 @Injectable()
-export class AppService {
+export class AppService { // injeção de dependencia do typeorm
   constructor(
     private readonly dataSource: DataSource,
 
@@ -21,7 +21,7 @@ export class AppService {
     @InjectRepository(History)
     private readonly historyRepository: Repository<History>,
   ) {}
-
+ // metodo get que chama os livros fiz uma transação para garantir que sempre crie um registro na tabela log 
   async findAll(): Promise<Book[]> {
     
       return this.dataSource.transaction (async (manager) => {
@@ -42,7 +42,7 @@ export class AppService {
 
 
   }
-
+ // similar ao get mas retorna um livro especifico mesma tranzação para tirar um log
   async findOne(id: string): Promise<Book> {
 
     const findBook = await this.books.findOneBy({ id });
@@ -53,6 +53,7 @@ export class AppService {
     }
 
      const log = manager.create(Logs, {
+         bookId:id ,
         method: 'GET',
         payload: JSON.stringify({
           resource:'books',
@@ -66,13 +67,13 @@ export class AppService {
     })
   }
 
- // Substitua o método findHistory antigo por este aqui:
+ // metodo get para recuper o historico de um livro :
 
 async findHistory(bookId: string): Promise<History[]> {
   // 1. Busca TODOS os históricos que pertencem ao ID desse livro
   const historyRecords = await this.historyRepository.find({
     where: { bookId: bookId },
-    order: { createdAt: 'DESC' }, // Bônus: traz as alterações mais novas primeiro!
+    order: { createdAt: 'DESC' }, // traz as alterações mais novas 
   });
 
   // 2. Se não tiver nada, avisa o front-end
@@ -80,8 +81,23 @@ async findHistory(bookId: string): Promise<History[]> {
     throw new NotFoundException('Nenhum histórico encontrado para este livro');
   }
 
-  // Retorna o array limpíssimo (sem criar logs de GET para não entupir seu banco!)
-  return historyRecords;
+  return this.dataSource.transaction (async (manager) =>  {
+          const log = manager.create(Logs, {
+        bookId:bookId ,
+        method: 'GET',
+        payload: JSON.stringify({
+          resource:'History',
+          action:'findAll',
+        }) , 
+      });
+
+      await manager.save(Logs, log);
+        // Retorna o array do historico
+       return historyRecords;
+  })
+
+ 
+ 
 }
 
   async create(createBookDto: CreateBookdto): Promise<Book> {
@@ -151,11 +167,11 @@ async update(id: string, newData: Partial<Book>): Promise<Book> {
       return book;
     }
 
-    // 3. OTIMIZAÇÃO: Mescla os dados novos no objeto existente e salva de uma vez só
+    //  Mescla os dados novos no objeto existente e salva de uma vez só
     Object.assign(book, newData);
     const updatedBook = await manager.save(Book, book); // Faz o UPDATE e retorna o livro atualizado
 
-    // 4. Cria os registros de histórico com a instância atualizada
+    //  Cria os registros de histórico com a instância atualizada
     const historyEntries = changes.map((change) =>
       manager.create(History, {
         label: change.label,
@@ -176,7 +192,6 @@ async update(id: string, newData: Partial<Book>): Promise<Book> {
       book: updatedBook,
     });
 
-    // 5. Salva o histórico e os logs
     await manager.save(History, historyEntries);
     await manager.save(Logs, log);
 
