@@ -294,11 +294,7 @@ function BookTable() {
             <button
               onClick={() => handleDeleteBook(livro.id)}
               disabled={deletingId === livro.id}
-              className={`
-    p-2 text-red-500 rounded-md transition-colors
-    ${deletingId === livro.id
-                  ? "opacity-50 cursor-not-allowed"
-                  : "hover:bg-red-500/10"}
+              className={` p-2 text-red-500 rounded-md transition-colors${deletingId === livro.id? "opacity-50 cursor-not-allowed" : "hover:bg-red-500/10"}
   `}
               title="Excluir"
             >

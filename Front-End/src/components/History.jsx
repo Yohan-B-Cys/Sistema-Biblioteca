@@ -3,11 +3,11 @@ import React from 'react';
 const HistoryModal = ({ isOpen, onClose, historyData, isLoading }) => {
   if (!isOpen) return null;
 
-  const temHistorico = historyData && historyData.length > 0;
+  const temHistorico = historyData && historyData.length > 0; // verifica a existencia do historico
 
-  const registroCriacao = temHistorico ? historyData[historyData.length - 1] : null;
+  const registroCriacao = temHistorico ? historyData[historyData.length - 1] : null; 
   const dataCriacao = registroCriacao
-    ? new Date(registroCriacao.createdAt).toLocaleString('pt-BR', {
+    ? new Date(registroCriacao.createdAt).toLocaleString('pt-BR', { // mostra a data do primeiro registro o de criação
         day: '2-digit',
         month: '2-digit',
         year: 'numeric',
@@ -16,7 +16,7 @@ const HistoryModal = ({ isOpen, onClose, historyData, isLoading }) => {
       })
     : 'N/A';
 
-  const registroUltimaAlteracao = temHistorico ? historyData[0] : null;
+  const registroUltimaAlteracao = temHistorico ? historyData[0] : null; //pega alteração mais recente 
   const dataUltimaAlteracao = registroUltimaAlteracao
     ? new Date(registroUltimaAlteracao.createdAt).toLocaleString('pt-BR', {
         day: '2-digit',
@@ -27,7 +27,7 @@ const HistoryModal = ({ isOpen, onClose, historyData, isLoading }) => {
       })
     : 'N/A';
 
-  const restoDoHistorico = temHistorico ? historyData.slice(1) : [];
+  const restoDoHistorico = temHistorico ? historyData.slice(1) : []; // mostra o resto do historico
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/20 dark:bg-black/40 backdrop-blur-[1px] dark:backdrop-blur-sm">
@@ -99,7 +99,7 @@ const HistoryModal = ({ isOpen, onClose, historyData, isLoading }) => {
 
                   <p className="mb-1">
                     <span className="font-semibold text-slate-600 dark:text-slate-400">
-                      Campo:
+                      Campo Alterado:
                     </span>{" "}
                     <span className="capitalize text-slate-900 dark:text-slate-100">
                       {registroUltimaAlteracao.label}
@@ -109,7 +109,7 @@ const HistoryModal = ({ isOpen, onClose, historyData, isLoading }) => {
                   {registroUltimaAlteracao.oldValue && (
                     <p>
                       <span className="font-semibold text-slate-600 dark:text-slate-400">
-                        De:
+                        Valor Antigo:
                       </span>{" "}
                       <span className="text-slate-800 dark:text-slate-200">
                         {registroUltimaAlteracao.oldValue}
@@ -120,7 +120,7 @@ const HistoryModal = ({ isOpen, onClose, historyData, isLoading }) => {
                   {registroUltimaAlteracao.newValue && (
                     <p>
                       <span className="font-semibold text-slate-600 dark:text-slate-400">
-                        Para:
+                        Valor Novo:
                       </span>{" "}
                       <span className="text-slate-800 dark:text-slate-200">
                         {registroUltimaAlteracao.newValue}
@@ -157,7 +157,7 @@ const HistoryModal = ({ isOpen, onClose, historyData, isLoading }) => {
                               {dataItem}
                             </span>
                             <span className="capitalize">
-                              Campo: {item.label}
+                              Campo Alterado : {item.label}
                             </span>
                           </h3>
 
@@ -166,7 +166,7 @@ const HistoryModal = ({ isOpen, onClose, historyData, isLoading }) => {
                               {item.oldValue && (
                                 <p>
                                   <span className="font-semibold text-slate-600 dark:text-slate-400">
-                                    De:
+                                    Valor Antigo:
                                   </span>{" "}
                                   {item.oldValue}
                                 </p>
@@ -174,7 +174,7 @@ const HistoryModal = ({ isOpen, onClose, historyData, isLoading }) => {
                               {item.newValue && (
                                 <p>
                                   <span className="font-semibold text-slate-600 dark:text-slate-400">
-                                    Para:
+                                    Valor Novo:
                                   </span>{" "}
                                   {item.newValue}
                                 </p>
