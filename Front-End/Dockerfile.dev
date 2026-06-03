@@ -1,0 +1,14 @@
+From node:22-alpine  as development
+
+
+# diretorio de trabalho dentro do container
+WORKDIR /app 
+# copia o package.son e o package-lock.json local
+COPY package*.json ./
+#instala dependencias
+RUN npm install
+# copia o resto dos arquivos locais 
+COPY  . .
+ 
+#Começa a aplicação 
+CMD ["npm" , "run" , "dev"]

@@ -1,0 +1,25 @@
+version: '3.8'
+
+services:
+
+ meu_backend:
+  build:
+    context: ./Back-end
+    dockerfile: Dockerfile.dev
+  ports:
+    - "3000:3000"
+  volumes:
+    - ./Back-end:/app
+    - /app/node-modules
+
+ meu_frontend:
+  build:
+    context: ./Front-End
+    dockerfile: Dockerfile.dev
+  ports:
+    - "5173:5173"
+  volumes:
+    - ./Front-End:/app
+    - /app/node-modules
+  depends_on:
+    - meu_backend

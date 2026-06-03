@@ -9,7 +9,7 @@ import { History } from './entities/history.entity';
 @Module({
   imports: [TypeOrmModule.forRoot({
       type: 'better-sqlite3' ,
-      database: 'banco-de-dados.sqlite', 
+      database: 'database/banco-de-dados.sqlite', 
       autoLoadEntities: true, 
       synchronize: true, 
     }),
