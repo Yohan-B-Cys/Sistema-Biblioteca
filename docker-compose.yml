@@ -10,7 +10,7 @@ services:
     - "3000:3000"
   volumes:
     - ./Back-end:/app
-    - /app/node-modules
+    - /app/node_modules
 
  meu_frontend:
   build:
@@ -20,6 +20,6 @@ services:
     - "5173:5173"
   volumes:
     - ./Front-End:/app
-    - /app/node-modules
+    - /app/node_modules
   depends_on:
     - meu_backend
