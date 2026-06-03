@@ -104,7 +104,9 @@ Sistema-Biblioteca/
 
 ## ⚙️ Como Executar o Projeto
 
-Certifique-se de ter o **Node.js** (v18+) instalado na sua máquina.
+Certifique-se de ter o **Docker**  instalado na sua máquina.
+
+> **⚠️ Nota para usuários de Windows:** Para evitar problemas de lentidão na leitura dos arquivos ou falhas no *Live Reload*, é altamente recomendável rodar este projeto por dentro do **WSL2 (Ubuntu)**.
 
 ### 1. Clonar o repositório
 ```bash
@@ -112,23 +114,17 @@ git clone https://github.com/Yohan-B-Cys/Sistema-Biblioteca.git
 cd Sistema-Biblioteca
 ```
 
-### 2. Rodar o Backend
-Abra um terminal e acesse a pasta do servidor:
-```bash
-cd Back-end
-npm install
-npm run start:dev
-```
-*O servidor estará rodando em `http://localhost:3000` e o banco SQLite será sincronizado automaticamente.*
+### 2. Rodar o Docker
 
-### 3. Rodar o Frontend
-Abra um **novo** terminal (mantenha o backend rodando) e acesse a pasta do client:
 ```bash
-cd Front-End
-npm install
-npm run dev
+docker compose up --build
 ```
-*Acesse a aplicação no navegador através do link gerado no terminal (geralmente `http://localhost:5173`)*
+*Para parar a aplicação depois, basta apertar `Ctrl + C` no terminal.*
+
+Assim que os logs indicarem que os servidores iniciaram, abra o seu navegador nos links abaixo:
+
+* 🖥️ **Frontend (Interface):** `http://localhost:5173`
+* ⚙️ **Backend (API):** `http://localhost:3000` (O banco SQLite será criado e sincronizado automaticamente).
 
 ---
 
@@ -141,7 +137,7 @@ npm run dev
 
 Este projeto está em evolução contínua. Abaixo estão possíveis melhorias para o projeto:
 
-- **Containerização:** Criar um `Dockerfile` e um `docker-compose.yml` para padronizar o ambiente de execução do banco e da aplicação.
+-  ✅  **Containerização:** Criar arquivos `Dockerfile` para o Front e Back end e um `docker-compose.yml` para padronizar o ambiente de execução da aplicação.
 - **Implementação de Paginação no Backend:** Adicionar suporte a parâmetros de paginação (take e skip no TypeORM) nas rotas de listagem e histórico, reduzindo o payload de rede e evitando sobrecarga de memória em alto volume de dados.
 - **Implementação de Banco de Dados mais robusto:** Substituir o SQLite por um SGBD de produção (como PostgreSQL ou SQLServer), garantindo melhor controle de concorrência transacional e preparando a API para um deploy escalável em nuvem.
 - **Permitir Livros Antes de Cristo:** Implementação de uma checkbox no formulário do livro para adicionar uma tag B.C (Before Christ) para livros com data correspondente, ex: A República de Platão.
@@ -155,7 +151,9 @@ Materiais e documentações utilizadas como base para a construção do sistema:
 * **NestJS Docs:** [Documentação Oficial](https://docs.nestjs.com/) para arquitetura, injeção de dependências e roteamento.
 * **TypeORM:** [Guia de Relacionamentos e Transações](https://typeorm.io/) para a modelagem do histórico e logs de auditoria.
 * **React & Vite:** [React.dev](https://react.dev/) e [Vite Docs](https://vitejs.dev/) para a construção da interface reativa.
-* **Tailwind CSS:** [Documentação](https://tailwindcss.com/) para estilização e construção do Dark Mode.
+* **Tailwind CSS:** [Documentação](https://tailwindcss.com/) para estilização e construção do Dark Mode.  
+
+* **Docker:** [Documentação](https://docs.docker.com/) para a Containerização da aplicação.
 
 Artigos e vídeos que me ajudaram:
 
@@ -168,4 +166,6 @@ Artigos e vídeos que me ajudaram:
 * **Vídeo do canal:** [Tenacity](https://youtu.be/NGwipjJimjk?si=D5keo0VbXqHePu1F) me guiou para a implementação da funcionalidade de Dark Mode no front-end.
 * **Vídeo do canal:** [Cubos Academy](https://youtu.be/KDlqPNmrUfE?si=-j36-LhEsqmqvFi3) me guiou para a implementação do React Router DOM no front-end.
 * **Vídeo do canal:** [LearnWebCode](https://www.youtube.com/watch?v=OA5JAmTcTz4&t=1070s) me ajudou a introduzir aos conceitos do React.
-
+ 
+*  **Vídeo do canal:** [Coding With Abbas](https://www.youtube.com/watch?v=o0fMQtmciFY&t=348s) me ajudou para a implementação do Docker.
+ 

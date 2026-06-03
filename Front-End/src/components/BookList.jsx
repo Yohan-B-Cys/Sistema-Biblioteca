@@ -316,7 +316,7 @@ function BookTable() {
 
         <h1 className="text-3xl font-bold flex items-center gap-3">
           <IoLibrary size={32} />
-          Sistema Biblioteca
+          Sistema Biblioteca 
         </h1>
       </div>
 
