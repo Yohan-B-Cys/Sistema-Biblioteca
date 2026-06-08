@@ -12,6 +12,8 @@ function AddBook() {
   const [titulo, setTitulo] = useState("");
   const [autor, setAutor] = useState("");
   const [ano, setAno] = useState("");
+  const [isAC, setIsAC] = useState(false); // NOVO: Estado do Checkbox
+  
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
 
@@ -24,7 +26,17 @@ function AddBook() {
         const result = await api.get(`/${id}`);
         setTitulo(result.data.titulo);
         setAutor(result.data.autor);
-        setAno(result.data.ano);
+        
+        // NOVO: Lógica de edição para lidar com anos negativos
+        const anoDoBanco = Number(result.data.ano);
+        if (anoDoBanco < 0) {
+          setIsAC(true);
+          setAno(Math.abs(anoDoBanco).toString()); // Transforma -500 em 500 visualmente
+        } else {
+          setIsAC(false);
+          setAno(anoDoBanco.toString());
+        }
+
       } catch (error) {
         toast.error("Erro ao carregar livro");
       } finally {
@@ -40,7 +52,7 @@ function AddBook() {
 
     const tituloLimpo = titulo.trim();
     const autorLimpo = autor.trim();
-    const anoNumerico = Number(ano);
+    const anoNumerico = Number(ano); // O que o usuário digitou (ex: 500)
 
     if (!tituloLimpo || !autorLimpo) {
       toast.error("Título e autor são obrigatórios.");
@@ -57,16 +69,27 @@ function AddBook() {
       return;
     }
 
-    const anoAtual = new Date().getFullYear();
-    if (anoNumerico <= 0 || anoNumerico > anoAtual) {
-      toast.error(`Ano inválido (1 - ${anoAtual})`);
+    // NOVO: Validação do Ano
+    if (anoNumerico <= 0) {
+      toast.error("O ano deve ser maior que zero.");
       return;
     }
+
+    const anoAtual = new Date().getFullYear();
+    // Se NÃO for a.C., não pode ser um ano no futuro (ex: 2050)
+    // Se FOR a.C., pode ser qualquer número, pois representa o passado distante.
+    if (!isAC && anoNumerico > anoAtual) {
+      toast.error(`Ano inválido (não pode ser maior que ${anoAtual})`);
+      return;
+    }
+
+    // NOVO: Matemática de conversão antes de salvar
+    const anoFinal = isAC ? -anoNumerico : anoNumerico;
 
     const bookData = {
       titulo: tituloLimpo,
       autor: autorLimpo,
-      ano: anoNumerico,
+      ano: anoFinal, // Envia o número positivo ou negativo final
     };
 
     setSaving(true);
@@ -119,12 +142,11 @@ function AddBook() {
                 <label className="text-sm font-medium text-slate-700 dark:text-slate-300">
                   Título
                 </label>
-
                 <input
                   type="text"
                   value={titulo}
                   onChange={(e) => setTitulo(e.target.value)}
-                  placeholder="Ex: O Senhor dos Anéis"
+                  placeholder="Ex: Senhor Dos Aneis"
                   className="w-full px-3 py-2 rounded-md border text-sm
                     bg-white dark:bg-slate-800
                     border-slate-300 dark:border-slate-700
@@ -139,12 +161,11 @@ function AddBook() {
                 <label className="text-sm font-medium text-slate-700 dark:text-slate-300">
                   Autor
                 </label>
-
                 <input
                   type="text"
                   value={autor}
                   onChange={(e) => setAutor(e.target.value)}
-                  placeholder="Ex: J.R.R. Tolkien"
+                  placeholder="Ex: J.R.R Tolkien"
                   className="w-full px-3 py-2 rounded-md border text-sm
                     bg-white dark:bg-slate-800
                     border-slate-300 dark:border-slate-700
@@ -154,24 +175,42 @@ function AddBook() {
                 />
               </div>
 
-              {/* ano */}
-              <div className="flex flex-col gap-1">
-                <label className="text-sm font-medium text-slate-700 dark:text-slate-300">
-                  Ano
-                </label>
+              {/* ano e checkbox */}
+              <div className="flex flex-col gap-3">
+                <div className="flex flex-col gap-1">
+                  <label className="text-sm font-medium text-slate-700 dark:text-slate-300">
+                    Ano
+                  </label>
+                  <input
+                    type="number"
+                    value={ano}
+                    onChange={(e) => setAno(e.target.value)}
+                    placeholder="Ex: 1953"
+                    className="w-full px-3 py-2 rounded-md border text-sm
+                      bg-white dark:bg-slate-800
+                      border-slate-300 dark:border-slate-700
+                      text-slate-900 dark:text-white
+                      placeholder:text-slate-400
+                      focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                  />
+                </div>
 
-                <input
-                  type="number"
-                  value={ano}
-                  onChange={(e) => setAno(e.target.value)}
-                  placeholder="Ex: 1954"
-                  className="w-full px-3 py-2 rounded-md border text-sm
-                    bg-white dark:bg-slate-800
-                    border-slate-300 dark:border-slate-700
-                    text-slate-900 dark:text-white
-                    placeholder:text-slate-400
-                    focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
-                />
+                {/* NOVO: Checkbox de Antes de Cristo */}
+                <div className="flex items-center gap-2">
+                  <input
+                    type="checkbox"
+                    id="isAC"
+                    checked={isAC}
+                    onChange={(e) => setIsAC(e.target.checked)}
+                    className="w-4 h-4 text-green-600 bg-white dark:bg-slate-800 border-slate-300 dark:border-slate-700 rounded focus:ring-green-500 cursor-pointer"
+                  />
+                  <label 
+                    htmlFor="isAC" 
+                    className="text-sm text-slate-700 dark:text-slate-300 cursor-pointer select-none"
+                  >
+                    Antes de Cristo (a.C.)
+                  </label>
+                </div>
               </div>
             </>
           )}
@@ -196,7 +235,7 @@ function AddBook() {
               type="submit"
               className="px-4 py-2 text-sm rounded-md font-semibold
                 bg-green-600 hover:bg-green-700
-                text-white shadow-md transition"
+                text-white shadow-md transition disabled:opacity-50"
             >
               {id ? "Salvar" : "Cadastrar"}
             </button>

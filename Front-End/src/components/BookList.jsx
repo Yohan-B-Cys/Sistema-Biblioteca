@@ -5,18 +5,16 @@ import toast from "react-hot-toast";
 import api from "../services/api";
 import ModoEscuro from "./DarkMode";
 import HistoryModal from "./History";
-import CopyButton from "./CopyButton";
-
 import { IoLibrary } from "react-icons/io5";
-import { TbXboxX } from "react-icons/tb";
-import { TfiWrite } from "react-icons/tfi";
-import { BiBookAdd } from "react-icons/bi";
-import { CiClock2 } from "react-icons/ci";
+
+// Importando nossos componentes filhos
+import BookFilterBar from "./BookFilterBar";
+import BookTableRow from "./BookTableRow";
+import Pagination from "./Pagination";
+import DeleteConfirmToast from "./DeleteConfirmToast";
 
 const PAGE_SIZE_OPTIONS = [2, 5, 10, 20];
-
-const TOAST_CLASS =
-  "!bg-background !text-text border border-gray-200 dark:border-gray-700";
+const TOAST_CLASS = "!bg-background !text-text border border-gray-200 dark:border-gray-700";
 
 function BookTable() {
   const navigate = useNavigate();
@@ -25,12 +23,15 @@ function BookTable() {
   // Estados
   // =========================
   const [books, setBooks] = useState([]);
-  const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(true);
   const [deletingId, setDeletingId] = useState(null);
   const [confirmingId, setConfirmingId] = useState(null);
-
-
+  
+  // Estado dos filtros e ordenação
+  const [filters, setFilters] = useState({
+    search: "",
+    ordem: ""
+  });
 
   // Paginação
   const [currentPage, setCurrentPage] = useState(1);
@@ -48,17 +49,16 @@ function BookTable() {
     fetchBooks();
   }, []);
 
-  // Sempre volta para a página 1 quando busca ou itens por página mudarem
-  useEffect(() => {
-    setCurrentPage(1);
-  }, [search, booksPerPage]);
+  // =========================
+  // Helpers e Lógica de Negócio
+  // =========================
+  const handleFilterChange = (name, value) => {
+    setFilters((prev) => ({ ...prev, [name]: value }));
+    setCurrentPage(1); // Sempre volta para página 1 ao filtrar ou ordenar
+  };
 
-  // =========================
-  // Helpers
-  // =========================
   const fetchBooks = async () => {
     setLoading(true);
-
     try {
       const response = await api.get("/");
       setBooks(response.data);
@@ -71,70 +71,40 @@ function BookTable() {
   };
 
   const handleDeleteBook = (id) => {
-
     if (confirmingId === id) return;
 
     setConfirmingId(id);
 
     toast(
       (t) => (
-        <div className="flex flex-col gap-4">
-          <p className="text-text">
-            Tem certeza que deseja excluir o livro?
-            <br />
-            Essa ação não pode ser desfeita.
-          </p>
+        <DeleteConfirmToast
+          t={t}
+          onCancel={(toastId) => {
+            setConfirmingId(null);
+            toast.dismiss(toastId);
+          }}
+          onConfirm={async (toastId) => {
+            if (deletingId === id) return;
 
-          <div className="flex justify-end gap-3">
-            <button
-              onClick={() => {
-                setConfirmingId(null);
-                toast.dismiss(t.id)
-              }
-                }
-              
-              className="px-3 py-1.5 text-text opacity-70 hover:opacity-100 transition-opacity cursor-pointer"
-            >
-              Cancelar
-            </button>
+            toast.dismiss(toastId);
 
-            <button
-              onClick={async () => {
-                // ✅ evita clique duplo
-                if (deletingId === id) return;
+            try {
+              setDeletingId(id);
+              await api.delete(`/${id}`);
+              await fetchBooks(); // É por causa dessa linha que a função fica aqui!
 
-                toast.dismiss(t.id);
-
-                try {
-                  setDeletingId(id); // ✅ marca como "deletando"
-
-                  await api.delete(`/${id}`);
-                  await fetchBooks();
-
-                  toast.success("Excluído com sucesso!", {
-                    className: TOAST_CLASS,
-                  });
-                } catch (error) {
-                  console.error("Erro ao deletar livro:", error);
-                  toast.error("Falha ao deletar livro.", {
-                    className: TOAST_CLASS,
-                  });
-                } finally {
-                  setDeletingId(null); // ✅ libera novamente
-                  setConfirmingId(null);
-                }
-              }}
-              className="bg-red-600 hover:bg-red-700 text-white font-semibold px-4 py-1.5 rounded-md transition-colors cursor-pointer shadow-lg"
-            >
-              Confirmar
-            </button>
-          </div>
-        </div>
+              toast.success("Excluído com sucesso!", { className: TOAST_CLASS });
+            } catch (error) {
+              console.error("Erro ao deletar livro:", error);
+              toast.error("Falha ao deletar livro.", { className: TOAST_CLASS });
+            } finally {
+              setDeletingId(null);
+              setConfirmingId(null);
+            }
+          }}
+        />
       ),
-      {
-        className: TOAST_CLASS,
-        duration: Infinity,
-      }
+      { className: TOAST_CLASS, duration: Infinity }
     );
   };
 
@@ -148,41 +118,81 @@ function BookTable() {
       setBookHistory(response.data || []);
     } catch (error) {
       console.error("Erro ao buscar histórico:", error);
-      toast.error("Erro ao buscar o histórico.", {
-        className: TOAST_CLASS,
-      });
+      toast.error("Erro ao buscar o histórico.", { className: TOAST_CLASS });
     } finally {
       setIsHistoryLoading(false);
     }
   };
 
-  const handleCloseHistory = () => {
-    setIsHistoryModalOpen(false);
-    setBookHistory([]);
+  // =========================
+  // Processamento: Filtro + Ordenação
+  // =========================
+// =========================
+  // Dados Derivados (Filtros e Ordenação)
+  // =========================
+  // Função que converte qualquer formato de ano para um número real (Timeline)
+  const parseAnoToNumber = (ano) => {
+    if (!ano) return 0; // Prevenção se o livro não tiver ano cadastrado
+
+    // 1. Transforma tudo em texto minúsculo (ex: "500 A.C." vira "500 a.c.")
+    const strAno = String(ano).toLowerCase().trim();
+
+    // 2. Verifica se o ano é "Antes de Cristo"
+    // Pode vir como "a.c.", "ac" ou até mesmo se o usuário já digitou "-500"
+    const isAC = strAno.includes("a.c") || strAno.includes("ac") || strAno.startsWith("-");
+
+    // 3. Extrai APENAS os números do texto (Remove letras, espaços e pontos)
+    // Ex: "500 a.c." vira "500"
+    const numerosLimpos = strAno.replace(/\D/g, "");
+    
+    // 4. Converte para formato numérico do JS
+    let numericAno = parseInt(numerosLimpos, 10);
+    if (isNaN(numericAno)) return 0; // Prevenção de erro
+
+    // 5. A Matemática: Se for a.C., multiplica por -1 (vira negativo)
+    return isAC ? -numericAno : numericAno;
   };
 
-  // =========================
-  // Dados derivados
-  // =========================
-  const normalizedSearch = search.trim().toLowerCase();
-
   const filteredBooks = useMemo(() => {
-    return books.filter((livro) => {
+    // 1. Filtrar pelo texto pesquisado
+    let result = books.filter((livro) => {
+      const normalizedSearch = filters.search.trim().toLowerCase();
+      if (!normalizedSearch) return true; 
+      
       return (
         String(livro.id).toLowerCase().includes(normalizedSearch) ||
         livro.titulo.toLowerCase().includes(normalizedSearch) ||
         livro.autor.toLowerCase().includes(normalizedSearch) ||
         String(livro.ano).includes(normalizedSearch)
+       
       );
     });
-  }, [books, normalizedSearch]);
 
-  const totalPages = Math.max(
-    1,
-    Math.ceil(filteredBooks.length / booksPerPage)
-  );
+    // 2. Ordenar baseado no Combo Box
+  // PASSO 2: Ordenar baseado no Combo Box
+    if (filters.ordem === "ano_novo") {
+      // Ordena do Maior para o Menor (ex: 2024 -> 1990 -> -200 -> -500)
+      result.sort((a, b) => parseAnoToNumber(b.ano) - parseAnoToNumber(a.ano));
+    } 
+    else if (filters.ordem === "ano_antigo") {
+      // Ordena do Menor para o Maior (ex: -500 -> -200 -> 1990 -> 2024)
+      result.sort((a, b) => parseAnoToNumber(a.ano) - parseAnoToNumber(b.ano));
+    } 
+    else if (filters.ordem === "registro_novo") {
+      result.sort((a, b) => books.indexOf(b) - books.indexOf(a));
+    } 
+    else if (filters.ordem === "registro_antigo") {
+      result.sort((a, b) => books.indexOf(a) - books.indexOf(b));
+    }
 
-  // Corrige currentPage caso ela fique maior que o total de páginas
+    return result;
+  }, [books, filters]);
+
+  // =========================
+  // Cálculos de Paginação
+  // =========================
+  const totalPages = Math.max(1, Math.ceil(filteredBooks.length / booksPerPage));
+  
   useEffect(() => {
     if (currentPage > totalPages) {
       setCurrentPage(totalPages);
@@ -191,156 +201,33 @@ function BookTable() {
 
   const indexOfLastBook = currentPage * booksPerPage;
   const indexOfFirstBook = indexOfLastBook - booksPerPage;
-
   const currentBooks = filteredBooks.slice(indexOfFirstBook, indexOfLastBook);
-
   const startItem = filteredBooks.length === 0 ? 0 : indexOfFirstBook + 1;
   const endItem = Math.min(indexOfLastBook, filteredBooks.length);
 
   // =========================
-  // Paginação - ações
+  // Render da Interface Principal
   // =========================
-  const goToFirstPage = () => setCurrentPage(1);
-
-  const goToPreviousPage = () => {
-    setCurrentPage((prev) => Math.max(prev - 1, 1));
-  };
-
-  const goToNextPage = () => {
-    setCurrentPage((prev) => Math.min(prev + 1, totalPages));
-  };
-
-  const goToLastPage = () => setCurrentPage(totalPages);
-
-  // =========================
-  // Render helpers
-  // =========================
-  const renderTableBody = () => {
-    if (loading) {
-      return (
-        <tr>
-          <td colSpan={5} className="p-8 text-center text-text/70">
-            Buscando livros...
-          </td>
-        </tr>
-      );
-    }
-
-    if (books.length === 0) {
-      return (
-        <tr>
-          <td colSpan={5} className="p-8 text-center text-text/70">
-            Nenhum livro cadastrado.
-          </td>
-        </tr>
-      );
-    }
-
-    if (filteredBooks.length === 0) {
-      return (
-        <tr>
-          <td colSpan={5} className="p-8 text-center text-text/70">
-            Nenhum livro encontrado para essa busca.
-          </td>
-        </tr>
-      );
-    }
-
-    return currentBooks.map((livro) => (
-      <tr
-        key={livro.id}
-        className="border-b border-borda last:border-0 hover:bg-black/5 dark:hover:bg-white/5 transition-colors"
-      >
-        <td className="p-4">
-          <div className="flex items-center gap-2 min-w-0">
-            <span className="truncate flex-1 min-w-0" title={livro.id}>
-              {livro.id}
-            </span>
-
-            <div className="shrink-0 flex items-center">
-              <CopyButton textToCopy={livro.id} />
-            </div>
-          </div>
-        </td>
-
-        <td className="p-4 truncate" title={livro.titulo}>
-          {livro.titulo}
-        </td>
-
-        <td className="p-4 truncate" title={livro.autor}>
-          {livro.autor}
-        </td>
-
-        <td className="p-4 text-center">{livro.ano}</td>
-
-        <td className="p-4 text-center">
-          <div className="flex justify-center gap-2">
-            <button
-              onClick={() => navigate(`/books/${livro.id}/edit`)}
-              className="p-2 text-text hover:bg-black/10 dark:hover:bg-white/10 rounded-md cursor-pointer transition-colors"
-              title="Editar"
-            >
-              <TfiWrite size={18} />
-            </button>
-
-            <button
-              onClick={() => handleOpenHistory(livro.id)}
-              className="p-2 text-text hover:bg-black/10 dark:hover:bg-white/10 rounded-md cursor-pointer transition-colors"
-              title={`Histórico do livro ${livro.titulo}`}
-            >
-              <CiClock2 size={18} />
-            </button>
-
-            <button
-              onClick={() => handleDeleteBook(livro.id)}
-              disabled={deletingId === livro.id}
-              className={` p-2 text-red-500 rounded-md transition-colors${deletingId === livro.id? "opacity-50 cursor-not-allowed" : "hover:bg-red-500/10"}
-  `}
-              title="Excluir"
-            >
-              {deletingId === livro.id ? "..." : <TbXboxX size={20} />}
-            </button>
-          </div>
-        </td>
-      </tr>
-    ));
-  };
-
   return (
     <div className="min-h-screen bg-background text-text p-8 flex flex-col items-center">
+      
       {/* Cabeçalho */}
       <div className="w-full max-w-5xl flex justify-center items-center relative mb-8">
-        <div className="absolute right-0">
-          <ModoEscuro />
-        </div>
-
+        <div className="absolute right-0"><ModoEscuro /></div>
         <h1 className="text-3xl font-bold flex items-center gap-3">
-          <IoLibrary size={32} />
-          Sistema Biblioteca 
+          <IoLibrary size={32} /> Sistema Biblioteca
         </h1>
       </div>
 
-      {/* Busca + botão adicionar */}
-      <div className="w-full max-w-5xl flex gap-3 mb-6">
-        <input
-          type="text"
-          placeholder="Pesquisar livros..."
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          className="flex-1 p-3 rounded-lg border-2 border-gray-400 dark:border-gray-500 dark:bg-white/5 text-text focus:outline-none focus:border-green-500 focus:ring-1 focus:ring-green-500 transition-all"
-        />
+      {/* Barra de Filtros e Ordenação */}
+      <BookFilterBar 
+        filters={filters} 
+        onFilterChange={handleFilterChange} 
+        onAddBook={() => navigate("/books/new")} 
+      />
 
-        <button
-          onClick={() => navigate("/books/new")}
-          className="flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white py-2 px-3 rounded-md transition-colors cursor-pointer font-medium text-sm whitespace-nowrap shadow-sm"
-        >
-          <BiBookAdd size={18} />
-          Adicionar Livro
-        </button>
-      </div>
-
-      {/* Tabela */}
-      <div className="w-full max-w-5xl bg-surface border border-borda rounded-lg shadow-md overflow-hidden mb-4">
+      {/* Tabela de Livros */}
+      <div className="w-full max-w-5xl bg-surface border border-borda rounded-lg shadow-md overflow-hidden mb-6">
         <table className="w-full table-fixed text-left">
           <thead className="bg-black/5 dark:bg-white/5 border-b border-borda">
             <tr>
@@ -351,102 +238,46 @@ function BookTable() {
               <th className="p-4 w-32 text-center font-semibold">AÇÕES</th>
             </tr>
           </thead>
-
-          <tbody>{renderTableBody()}</tbody>
+          <tbody>
+            {loading ? (
+              <tr><td colSpan={5} className="p-8 text-center text-text/70">Buscando livros...</td></tr>
+            ) : filteredBooks.length === 0 ? (
+              <tr><td colSpan={5} className="p-8 text-center text-text/70">Nenhum livro encontrado.</td></tr>
+            ) : (
+              currentBooks.map((livro) => (
+                <BookTableRow 
+                  key={livro.id} 
+                  livro={livro} 
+                  isDeleting={deletingId === livro.id}
+                  onEdit={() => navigate(`/books/${livro.id}/edit`)}
+                  onOpenHistory={() => handleOpenHistory(livro.id)}
+                  onDelete={() => handleDeleteBook(livro.id)}
+                />
+              ))
+            )}
+          </tbody>
         </table>
       </div>
 
-      {/* Barra de informações da paginação */}
+      {/* Paginação */}
       {!loading && filteredBooks.length > 0 && (
-        <div className="w-full max-w-5xl flex flex-col md:flex-row md:items-center md:justify-between gap-3 mb-4">
-          <div className="flex items-center gap-2 text-sm text-text/80">
-            <span>Itens por página:</span>
-
-            <select
-              value={booksPerPage}
-              onChange={(e) => setBooksPerPage(Number(e.target.value))}
-              className="px-3 py-2 rounded-md border border-text bg-background text-text"
-            >
-              {PAGE_SIZE_OPTIONS.map((option) => (
-                <option key={option} value={option}>
-                  {option}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          <p className="text-sm text-text/80">
-            Exibindo {startItem}–{endItem} de {filteredBooks.length} resultados
-          </p>
-
-          <p className="text-sm text-text/80">
-            Página {currentPage} de {totalPages}
-          </p>
-        </div>
+        <Pagination 
+          currentPage={currentPage}
+          totalPages={totalPages}
+          itemsPerPage={booksPerPage}
+          totalItems={filteredBooks.length}
+          startItem={startItem}
+          endItem={endItem}
+          pageSizeOptions={PAGE_SIZE_OPTIONS}
+          onPageChange={setCurrentPage}
+          onItemsPerPageChange={setBooksPerPage}
+        />
       )}
 
-      {/* Controles da paginação */}
-      {!loading && filteredBooks.length > 0 && (
-        <div className="flex flex-wrap gap-2 justify-center items-center">
-          <button
-            onClick={goToFirstPage}
-            disabled={currentPage === 1}
-            className="px-3 py-2 rounded-md border border-text text-text disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer hover:bg-black/10 dark:hover:bg-white/10 transition-colors"
-            title="Primeira página"
-          >
-            {"<<"}
-          </button>
-
-          <button
-            onClick={goToPreviousPage}
-            disabled={currentPage === 1}
-            className="px-3 py-2 rounded-md border border-text text-text disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer hover:bg-black/10 dark:hover:bg-white/10 transition-colors"
-            title="Página anterior"
-          >
-            {"<"}
-          </button>
-
-          {Array.from({ length: totalPages }, (_, index) => {
-            const pageNumber = index + 1;
-
-            return (
-              <button
-                key={pageNumber}
-                onClick={() => setCurrentPage(pageNumber)}
-                className={`w-10 h-10 rounded-md border border-text flex items-center justify-center cursor-pointer transition-colors ${currentPage === pageNumber
-                    ? "bg-text text-background"
-                    : "text-text hover:bg-black/10 dark:hover:bg-white/10"
-                  }`}
-              >
-                {pageNumber}
-              </button>
-            );
-          })}
-
-          <button
-            onClick={goToNextPage}
-            disabled={currentPage === totalPages}
-            className="px-3 py-2 rounded-md border border-text text-text disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer hover:bg-black/10 dark:hover:bg-white/10 transition-colors"
-            title="Próxima página"
-          >
-            {">"}
-          </button>
-
-          <button
-            onClick={goToLastPage}
-            disabled={currentPage === totalPages}
-            className="px-3 py-2 rounded-md border border-text text-text disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer hover:bg-black/10 dark:hover:bg-white/10 transition-colors"
-            title="Última página"
-          >
-            {">>"}
-          </button>
-        </div>
-      )}
-
-      {/* Modal de histórico */}
+      {/* Modal Histórico */}
       <HistoryModal
         isOpen={isHistoryModalOpen}
-        onClose={handleCloseHistory}
+        onClose={() => setIsHistoryModalOpen(false)}
         historyData={bookHistory}
         isLoading={isHistoryLoading}
       />
