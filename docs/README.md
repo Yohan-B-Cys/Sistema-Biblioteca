@@ -140,7 +140,7 @@ Este projeto está em evolução contínua. Abaixo estão possíveis melhorias p
 -  ✅  **Containerização:** Criar arquivos `Dockerfile` para o Front e Back end e um `docker-compose.yml` para padronizar o ambiente de execução da aplicação.
 - **Implementação de Paginação no Backend:** Adicionar suporte a parâmetros de paginação (take e skip no TypeORM) nas rotas de listagem e histórico, reduzindo o payload de rede e evitando sobrecarga de memória em alto volume de dados.
 - **Implementação de Banco de Dados mais robusto:** Substituir o SQLite por um SGBD de produção (como PostgreSQL ou SQLServer), garantindo melhor controle de concorrência transacional e preparando a API para um deploy escalável em nuvem.
-- **Permitir Livros Antes de Cristo:** Implementação de uma checkbox no formulário do livro para adicionar uma tag B.C (Before Christ) para livros com data correspondente, ex: A República de Platão.
+- ✅  **Permitir Livros Antes de Cristo:** Implementação de uma checkbox no formulário do livro para adicionar uma tag B.C (Before Christ) para livros com data correspondente, ex: A República de Platão.
 
 ## 📚 Referências e Créditos
 
