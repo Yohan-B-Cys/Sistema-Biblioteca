@@ -30,11 +30,14 @@ Sistema de gerenciamento de uma biblioteca completo que permite cadastrar, edita
 - **Tailwind CSS** (Estilização)
 - **Axios** (Integração HTTP)
 - **React Hot Toast & React Icons**
+- **Jest** (Testes unitarios)
+
 
 ### Backend
 - **Node.js & NestJS** (Framework Arquitetural)
 - **TypeORM** (Mapeamento Objeto-Relacional)
 - **SQLite3** (Banco de dados em arquivo local)
+- **Jest** (Testes unitarios)
 
 ---
 

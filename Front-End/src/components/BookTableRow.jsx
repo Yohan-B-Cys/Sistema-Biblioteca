@@ -1,7 +1,7 @@
 import { TfiWrite } from "react-icons/tfi";
 import { CiClock2 } from "react-icons/ci";
 import { TbXboxX } from "react-icons/tb";
-import CopyButton from "./CopyButton"; // Ajuste o caminho se necessário
+import CopyButton from "./CopyButton"; 
 
 function BookTableRow({ livro, isDeleting, onEdit, onOpenHistory, onDelete }) {
   return (
