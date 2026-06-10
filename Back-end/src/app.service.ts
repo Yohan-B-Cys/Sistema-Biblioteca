@@ -42,6 +42,29 @@ export class AppService { // injeção de dependencia do typeorm
 
 
   }
+
+  async processTotsUpdate(dados: any) {
+  // 1. Validação básica de entrada
+  if (!dados.id) {
+    throw new BadRequestException('O ID do livro é obrigatório no corpo da requisição.');
+  }
+
+  // 2. Mapeamos o JSON que veio da Tots para bater com as colunas do seu banco (corrigindo o 'autor')
+  const dadosFormatados: Partial<Book> = {
+    titulo: dados.titulo,
+    autor: dados.autor, // garante que o 'autor' do Postman caia na propriedade certa
+    ano: dados.ano,
+  };
+
+  // 3. REAPROVEITAMENTO: Chamamos o seu método update existente!
+  // Ele já vai rodar a transação e gerar todo o histórico automaticamente.
+  const livroAtualizado = await this.update(dados.id, dadosFormatados);
+
+  // 4. Retorna o ID do livro atualizado para o Controller
+  return { livroAtualizado: livroAtualizado.id };
+}
+
+
  // similar ao get mas retorna um livro especifico mesma tranzação para tirar um log
   async findOne(id: string): Promise<Book> {
 

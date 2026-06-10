@@ -5,6 +5,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { Book } from './entities/book.entity';
 import { Logs } from './entities/log.entity';
 import { History } from './entities/history.entity';
+import { WebhooksController } from './webhook/webhookcontroller';
 
 @Module({
   imports: [TypeOrmModule.forRoot({
@@ -18,7 +19,10 @@ import { History } from './entities/history.entity';
   TypeOrmModule.forFeature([History]),
 
   ],
-  controllers: [AppController],
+  controllers: [
+    AppController,
+    WebhooksController
+  ],
   providers: [AppService],
 })
 export class AppModule {}
